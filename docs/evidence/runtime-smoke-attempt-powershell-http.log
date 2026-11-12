@@ -1,0 +1,10 @@
+PASS Liveness (ok)
+PASS Database readiness (ready)
+Invoke-WebRequest : Object reference not set to an instance of an object.
+At C:\Users\anmol\Documents\Codex\2026-11-13\referenced-chatgpt-conversation-this-is-an\outputs\ecommerce-platform\scri
+pts\verify-runtime.ps1:41 char:21
++         $response = Invoke-WebRequest @request
++                     ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Invoke-WebRequest], NullReferenceException
+    + FullyQualifiedErrorId : System.NullReferenceException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+ 

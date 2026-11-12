@@ -1,0 +1,36 @@
+Final local state
+--- Docker Engine ---
+Server=28.5.2
+--- Compose services ---
+NAME                         IMAGE                               COMMAND                  SERVICE   CREATED          STATUS                    PORTS
+ecommerce-platform-api-1     ecommerce-product-order-api:local   "/app/scripts/entryp…"   api       17 minutes ago   Up 16 minutes (healthy)   8000/tcp
+ecommerce-platform-db-1      postgres:16-alpine                  "docker-entrypoint.s…"   db        2 hours ago      Up 2 hours (healthy)      5432/tcp
+ecommerce-platform-nginx-1   nginx:1.27-alpine                   "/docker-entrypoint.…"   nginx     3 hours ago      Up 15 minutes (healthy)   127.0.0.1:8080->80/tcp
+--- API image ---
+Tag=ecommerce-product-order-api:local ImageID=sha256:fd31b7e4e4f169d7497be960bec60cc4a1403791970336b759798d912abaed33 User=app:app
+--- Existing database volume ---
+ecommerce-platform_postgres_data
+--- Git privacy checks ---
+PASS .env is ignored
+PASS no .env secrets file is tracked
+PASS no Git remote configured; no publishing occurred
+--- Git status ---
+## main
+ M .github/workflows/ci.yml
+ M Dockerfile
+ M README.md
+ M app/main.py
+ M app/schemas.py
+ M docs/architecture.md
+ M docs/assignment-compliance-checklist.md
+ M docs/demo-script.md
+ M docs/evidence-checklist.md
+ M docs/operations-runbook.md
+ M docs/verification-report.md
+ M pyproject.toml
+ M scripts/verify-runtime.ps1
+ M tests/test_api.py
+?? .trivyignore.yaml
+?? docs/evidence/
+?? scripts/test-backup-restore.ps1
+?? scripts/verify-isolated-api.ps1

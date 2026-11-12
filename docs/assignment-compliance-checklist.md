@@ -1,88 +1,93 @@
 # Assignment compliance checklist
 
-Compared with the complete text of the attached assignment, `07_Cloud_Deployment_and_CI_CD_E_Commerce_Platform.docx`. The attachment was DOCX, although it was described as a PDF. Its text and tables were extracted and reviewed; visual page rendering was unavailable in this environment.
+Compared against every section and table in the supplied assignment, 07_Cloud_Deployment_and_CI_CD_E_Commerce_Platform.docx. The supplied source is a DOCX file, not a PDF. Its paragraphs and tables were extracted and reviewed in full. The 15-day schedule is guidance; it is not a project acceptance requirement.
 
-The assignment’s business scope, technical expectations, acceptance tests, submission package, evaluation weights, and submission rules are treated as requirements. Its 15-day schedule is presented as guidance, not a personalized deadline. “Complete” means the project contains the requested capability and there is relevant verification evidence; “Partially Complete” means some work exists but a test, deployment, artifact, or user-specific step is outstanding; “Missing” means the artifact or action does not exist yet.
+Complete means the requested capability exists and was verified locally where practical. Partially Complete means a configuration or local proof exists but hosted, external, or candidate-specific evidence is still missing. Missing means the required artifact or candidate action has not been completed.
 
-## Product and order requirements
+## Business scope and API
 
 | Requirement | Status | Evidence and remaining work |
 |---|---|---|
-| Build a small product and order API rather than a storefront or marketplace. | Complete | FastAPI service exposes catalog and checkout functions; README states storefront and payments are out of scope. |
-| Provide health/readiness, product search/details, and order creation. | Complete | Routes exist and passed earlier local smoke checks; a fresh post-change smoke run is pending Docker access. |
-| Validate availability and quantity, snapshot price and product details, and prevent negative stock. | Complete | Checkout validates stock in a transaction and saves item snapshots; earlier API tests covered stock rejection and price snapshots. |
-| Make repeated order creation idempotent. | Complete | `Idempotency-Key`, request hash, and unique constraint are implemented; earlier tests covered exact retry and conflicting reuse. PostgreSQL concurrent behavior still needs a dedicated concurrency test. |
-| Protect and audit admin product/stock changes. | Complete | Admin routes require a non-empty configured token and create audit events; earlier API tests covered denied access and audit records. |
-| Include seed products and a simple order status endpoint. | Complete | Idempotent demo seed script and order lookup/status transitions exist; three missing demo products were added to the local database previously without replacing existing SKUs. |
+| Build the assigned small product and order API, not a full storefront or marketplace. | Complete | FastAPI provides the allocated product/order workflow. Payments and storefront UI remain out of scope. |
+| Use a domain-specific service implementing the brief. | Complete | Product, order, admin, audit and status routes are implemented. |
+| Expose health and readiness, product search/details, and order creation. | Complete | Live Compose checks passed for health/readiness, Swagger, catalog search and product details. |
+| Validate availability and quantities; snapshot price and product data at checkout. | Complete | The 10-test suite passed. Isolated API checks created and retrieved an order; the suite covers checkout rules and snapshots. |
+| Prevent negative stock and make repeated order creation idempotent. | Complete | The isolated smoke verified 201 on creation and replay, the same order ID, unchanged stock, 409 for a different payload with the same key, and 422 for invalid input. PostgreSQL concurrency locking remains an untested edge case. |
+| Protect admin product/stock operations and write audit events. | Complete | The test suite passed admin authorization/audit cases. The isolated smoke verified unauthorized 401, authorized 200, and product creation. |
+| Include seed products and a simple order status endpoint. | Complete | The seed script, product search, order lookup, and status routes are present. |
 
 ## Technical expectations
 
 | Requirement | Status | Evidence and remaining work |
 |---|---|---|
-| Keep the service domain-specific and small. | Complete | Product, order, admin, and audit API only; no payment or storefront dependency. |
-| Use a secure, reproducible Dockerfile, non-root where practical, and avoid unnecessary layers/dependencies. | Partially Complete | Runtime uses a slim Python base and a non-root user. Base-image tags are mutable, and a clean rebuild after the latest edits could not be checked. Pin base images by digest and verify a clean build for stronger reproducibility. |
-| Orchestrate app and database with persistent storage and health checks. | Partially Complete | Compose has private API/database networking, health checks, and a named persistent database volume. Compose validation and current health could not be rerun after changing required secret handling. |
-| Run formatting/lint/static checks, tests, and build an image on PR/push; publish versioned tags without broad secrets. | Partially Complete | Workflow now runs Ruff lint/format, tests, dependency audit, and builds/scans on PR/push. A separate tag-only job has `packages:write` and publishes semantic-version/SHA/latest tags. Remote GitHub Actions and image publication are unverified because no remote is configured. Core Actions still use release tags rather than full commit SHAs. |
-| Demonstrate local VM/container deployment, reverse proxy, and HTTPS configuration. | Partially Complete | Local Compose/Nginx deployment and a Linux host-Nginx/Certbot example exist. No VM, controlled domain, certificate, or public HTTPS endpoint has been deployed. |
-| Use environment-based configuration, least privilege, secret handling, and restricted network exposure. | Partially Complete | `.env` is ignored and untracked; Compose now requires non-empty database/admin secrets and does not expose API/DB host ports. URL building safely encodes punctuation. Credentials were exposed in the earlier conversation and should be rotated before sharing/deployment; no cloud secret manager is configured. |
-| Add dependency/container scanning where feasible. | Partially Complete | CI now runs `pip-audit` and Trivy for high/critical image vulnerabilities. Those scans could not be executed here; any findings or clean result remain unknown. |
-| Provide health/readiness, structured logs, actionable troubleshooting; metrics are a stretch goal. | Complete | Liveness/readiness and JSON request logs with request IDs exist; the runbook describes diagnosis. Metrics are not implemented and are an optional stretch item. Earlier live health checks passed. |
-| Demonstrate backup/restore, restart/recovery, and document rollback. | Partially Complete | Backup/restore scripts, explicit restore guard, persistent-volume recovery, image rollback instructions, and a safe Nginx recovery drill script exist. The recovery drill and disposable-database backup/restore rehearsal were not executable from this session. |
-| Include deployment configuration and a reproducible runbook. | Complete | Compose, Nginx examples, README, architecture notes, and operations runbook exist. New documentation changes passed whitespace checks; runtime validation remains pending. |
+| Use a secure, reproducible Dockerfile, non-root runtime, and limited layers/dependencies. | Partially Complete | A no-cache image build passed, the Python base is digest-pinned, the runtime runs as app:app, and build-only setuptools is removed. Debian packages are upgraded from live repositories rather than a pinned snapshot. The strict image scan also reports 47 high-severity Debian package entries with no fix version in its database. |
+| Orchestrate the app and database with persistent storage and health checks. | Complete | Compose validation passed; API, PostgreSQL, and Nginx are healthy. The existing PostgreSQL volume identity was the same before and after rebuild. |
+| Run formatting/lint, tests, and an image build on PR/push; use versioned tags and avoid committed secrets. | Partially Complete | The workflow passed actionlint and includes lint/format, tests, dependency audit, image build/scan, and tag-only version/SHA/latest publishing. No remote is configured, so hosted CI and the versioned artifact have not run. |
+| Demonstrate a VM/container deployment with reverse proxy and HTTPS configuration. | Partially Complete | The local Compose/Nginx deployment and Linux host-Nginx/Certbot example exist. No VM, controlled domain, certificate, or live HTTPS endpoint was deployed. |
+| Use environment configuration, least privilege, secret management, and appropriate network exposure. | Partially Complete | Secrets are required from local environment settings; API/database ports remain private; the API runs non-root; .env is ignored and untracked. A cloud secret manager is not configured. Credentials were previously exposed in conversation and must be rotated by the user before sharing or recording. |
+| Include dependency and container scans where feasible. | Complete | pip-audit found no known application or installed-environment vulnerabilities. The Trivy CI-policy scan passed with zero findings after ignoring unfixable entries and one expiring, version-specific exception for setuptools 70.3.0 metadata absent from the final runtime. A strict scan still reports 47 unfixable Debian package findings; see the verification report. |
+| Provide health/readiness, structured logs, and useful troubleshooting; metrics are optional. | Complete | Live health/readiness passed; JSON request logs include request IDs. Runbook troubleshooting is documented. Metrics are not implemented and are a stretch goal. |
+| Demonstrate backup/restore, restart/recovery, and document rollback. | Complete | A disposable PostgreSQL tmpfs backup/restore rehearsal and the Nginx failure/recovery drill both passed. Rollback steps are documented. The assignment database and volume were not reset or restored. |
+| Include deployment configuration and a concise reproducible runbook. | Complete | Compose, Nginx configuration, README, architecture diagram and operations runbook are present. Fresh-machine onboarding is not independently tested. |
 
 ## Acceptance tests
 
-| Acceptance requirement | Status | Evidence and remaining work |
+| Requirement | Status | Evidence and remaining work |
 |---|---|---|
-| Reusing an idempotency key does not duplicate orders or deduct stock twice. | Complete | Earlier API suite passed the exact retry and key-conflict cases. PostgreSQL concurrency remains outside SQLite test coverage. |
-| A clean environment can build/start from the documentation. | Partially Complete | README documents prerequisites and commands; a fresh-machine setup was not run. Latest Compose edits need a Docker-enabled validation. |
-| CI runs checks/tests and produces a versioned image artifact. | Partially Complete | Workflow is configured, but it cannot run until a GitHub repository/remote exists and a version tag is pushed. No pipeline run or digest is available. |
-| Show health/readiness and logs; deliberately fail a service and show detection/recovery. | Partially Complete | Health and JSON logging exist; `scripts/failure-recovery-check.ps1` safely stops/restarts only Nginx and checks recovery. It was not run because Docker access was rejected. A recording remains to be made. |
-| Restore a backup or show rollback procedure with evidence. | Partially Complete | Rollback is documented. Backup/restore scripts are present, but the requested rehearsal/evidence is still pending. |
+| Repeating checkout with the same idempotency key creates no duplicate order and does not deduct stock twice. | Complete | Verified in the 10-test suite and isolated API smoke. PostgreSQL concurrent-request behavior is not separately stress-tested. |
+| A clean environment can build and start using documented steps. | Complete | A no-cache Docker test build passed and the full Compose stack started healthy from the documented project configuration. A separate new laptop was not used. |
+| A CI run executes checks/tests and produces a versioned artifact/image. | Partially Complete | Workflow configuration passed actionlint. A hosted run and registry artifact require a selected GitHub repository; neither was created or published. |
+| Show health/logs and deliberately stop or break a service, then detect and recover. | Complete | The Nginx outage drill detected proxy failure while API health remained ready, restarted Nginx, and restored health/readiness. |
+| Restore a backup or show rollback evidence. | Complete | A custom-format dump restored the expected synthetic marker in an isolated tmpfs PostgreSQL database. |
 
-## Submission package and evidence
+## Required submission package
 
 | Requirement | Status | Evidence and remaining work |
 |---|---|---|
-| Repository source, Dockerfile, Compose/orchestration, CI, and deploy configuration. | Complete | All are present in this local project. No GitHub publication has been performed. |
-| README build/run/deploy instructions, environment variables, port map, and rollback. | Complete | README now includes setup prerequisites, variable/port tables, and rollback steps. Recheck in a browser after any deployment-specific edits. |
-| Architecture/schema diagram and operations runbook for deploy/restart/logs/backup/restore/incident response. | Partially Complete | Architecture diagram and runbook are present; the runbook now includes incident response. Architecture/schema links are local project files, not public reviewer links. |
-| Pipeline URL/screenshot, image tag/digest, deployment/health evidence. | Missing | Requires a chosen GitHub repository/account, remote, successful hosted workflow, version-tag publication, and deployment target or accepted local-only proof. |
-| Backup/restore evidence and API test output. | Partially Complete | Earlier API suite passed 8 tests; two configuration-focused tests were added but not rerun. Backup/restore rehearsal is pending. |
-| 3–5 minute demo showing pipeline, deployment, health/logs, and failure recovery or restore. | Missing | The demo script is prepared; a human must record the walkthrough and provide its link, or declare local-only proof if permitted. |
+| Repository containing source, Dockerfile, Compose, CI and deployment configuration. | Partially Complete | These files are in the existing local Git repository. No GitHub remote or reviewer-accessible repository exists yet. |
+| README with build/run/deploy steps, environment variables, ports and rollback. | Complete | README documents prerequisites, configuration, port exposure, run, recovery and rollback. |
+| Architecture diagram and runbook for deployment, restart, logs, backup/restore and incidents. | Complete | Mermaid architecture and the operations runbook are present. |
+| Pipeline URL/screenshot, image tag/digest, and deployment/health evidence. | Partially Complete | Local tag ecommerce-product-order-api:local, local image ID and health/test logs exist. Hosted workflow URL, registry digest, and screenshots are missing. A browser screenshot of Swagger was not captured because the localhost browser origin approval was declined. |
+| Backup/restore evidence and API test output. | Complete | Test, backup/restore, and recovery logs plus Trivy JSON are in docs/evidence. |
+| 3–5 minute demo of pipeline, deployment, health/logs and failure/recovery or restore. | Missing | The demo script is prepared, but a recording/link has not been provided. |
 
-## Submission form and declarations
+## Submission form and rules
 
 | Requirement | Status | Evidence and remaining work |
 |---|---|---|
-| Candidate full name, registration number, and university email. | Missing | Candidate-specific details were not provided and should be entered by the candidate in the official form. |
-| Internship role and exact project title. | Partially Complete | Project title is documented as “E-Commerce Product and Order API”; confirm the exact role/title wording from the individual invitation. |
-| Repository URL, branch, final commit ID, and reviewer access if private. | Partially Complete | Local branch is `main`; there is no remote. The final local commit can be cited after review. Repository URL and reviewer access require the candidate’s chosen GitHub account/repository. |
-| Video/demo link or local-only declaration. | Missing | Needs the candidate’s recording/link or the form’s local-only option. |
-| README/report and architecture/schema diagram links. | Partially Complete | Files exist locally; convert them to reviewer-accessible repository links after publication. |
-| Tech stack, setup, and known limitations. | Complete | README and architecture/runbook cover stack, setup, SQLite-vs-PostgreSQL concurrency limits, and operational limitations. |
-| AI tools, purpose, dataset, library, and source attribution. | Partially Complete | README discloses ChatGPT assistance and synthetic demo data; complete the official form’s exact AI/dependency/source fields. |
-| Originality/explainability, no sensitive data, and working links declarations. | Partially Complete | Project docs disclose AI assistance and known limits; `.env` is ignored/untracked. Candidate must review/explain the work, rotate previously exposed credentials, and verify final public/private links before declaring. |
-| Role-specific pipeline/deployment/image/architecture/backup evidence. | Partially Complete | Architecture and local deployment proof exist; pipeline URL, image digest, and backup/restore rehearsal evidence remain pending. |
+| Candidate full name, registration number and university email. | Missing | Candidate-specific fields must be supplied by the candidate in the official form. |
+| Internship role and exact assigned project title. | Partially Complete | The assignment states DevOps & Cloud Engineering and Cloud Deployment & CI/CD – E-Commerce Platform; the candidate still needs to enter and confirm these in the form. |
+| Repository URL, primary branch, final commit ID and reviewer access if private. | Partially Complete | Local branch is main and the source project exists. There is no remote or reviewer access. Record the final local commit after review, then add the chosen repository URL. |
+| Video link or local-only demo declaration. | Missing | Record and link the demo, or use the form's local-only option if allowed. |
+| README/report and architecture/schema diagram links. | Partially Complete | Files exist locally; reviewer-accessible links depend on repository publication. |
+| Technology, setup notes and known limitations. | Complete | README, architecture and verification report describe the stack, setup and limits. |
+| AI tools, purpose, dataset/library/source attribution. | Partially Complete | README discloses ChatGPT assistance and synthetic demo data. Complete the official form's exact fields. |
+| Originality, ability to explain the code, no sensitive data/secrets, and working links. | Partially Complete | .env is ignored and untracked and no secrets were printed or committed in this work. The candidate must rotate previously exposed credentials, review/explain the code, and verify final links before declaring. |
+| Role-specific pipeline/deployment/image/architecture/backup evidence. | Partially Complete | Local deployment, image ID, architecture and backup evidence exist; hosted pipeline URL and registry digest remain pending. |
+| Keep the reviewer-accessible repository, report and video links working. | Missing | No public/private reviewer links or video link exist yet. |
+| Use the candidate's own free-tier/local environment. | Complete | Verification ran against the candidate's local Docker Desktop environment; no paid cloud environment was used. |
+| Prepare for the 15-minute walkthrough and 10-minute live change/debugging task. | Missing | Candidate preparation and walkthrough remain outstanding. |
+| Submit a correct MVP and state unfinished features. | Complete | The project documents that storefront, payment processing, live cloud/TLS deployment and PostgreSQL concurrency stress testing remain outside verified scope. |
 
 ## Evaluation rubric crosswalk
 
-| Weight/category | Status | Main remaining gap |
+| Rubric category | Status | Remaining gap |
 |---|---|---|
-| 20 — Containerization and reproducibility | Partially Complete | Mutable base-image tags and no clean rebuild after current changes. |
-| 20 — CI/CD | Partially Complete | Workflow configured but no remote run or versioned registry artifact. |
-| 15 — Deployment, network, and security | Partially Complete | Local private networking and HTTPS example exist; no live VM/TLS deployment, secret manager, or credential rotation evidence. |
-| 15 — Observability and troubleshooting | Complete | Health/readiness, request logs, and incident runbook exist; metrics are optional. |
-| 15 — Backup, restore, and rollback | Partially Complete | Scripts/runbook exist; isolated restore rehearsal and evidence remain. |
-| 10 — Reliability and documentation | Partially Complete | Docs are extensive; clean-environment and recovery/backup execution need verification. |
-| 5 — Domain API correctness | Complete | Earlier automated API tests and live smoke checks passed; PostgreSQL concurrency testing remains a stated limitation. |
+| 20 - Containerization and reproducibility | Partially Complete | No-cache build and non-root runtime passed; Debian repository inputs are not snapshot-pinned and strict Trivy findings remain. |
+| 20 - CI/CD automation | Partially Complete | Workflow is linted and configured; hosted execution and versioned registry artifact await a repository. |
+| 15 - Deployment, networking and security | Partially Complete | Local reverse proxy, private ports and HTTPS example exist; no live TLS endpoint, external secrets manager, or credential rotation evidence. |
+| 15 - Observability and troubleshooting | Complete | Health/readiness, structured request logs, and a passed failure/recovery drill are documented. |
+| 15 - Backup, restore and rollback | Complete | Isolated database restore and rollback instructions are documented; production-data restore was intentionally not attempted. |
+| 10 - Reliability and documentation | Complete | Runbook, architecture, configuration and local evidence are present; onboarding on a new machine remains untested. |
+| 5 - Domain API correctness | Complete | Ten automated tests and isolated endpoint checks passed; PostgreSQL concurrency stress testing remains a limitation. |
 
 ## Candidate actions still required
 
-1. Run the Docker validation, test suite, dependency/image scans, recovery drill, and disposable-database backup/restore rehearsal in a session with Docker Desktop access. Do not restore against the existing assignment database.
-2. Rotate the previously exposed database password and admin token before sharing, deploying, or recording. Keep replacement values private in `.env`.
-3. Choose the GitHub account/repository and whether it is private; then add the remote, push the reviewed local commit, and verify reviewer access. Nothing has been published.
-4. After a successful hosted workflow, record its URL, image tag/digest, and a screenshot; deploy to an approved VM/domain if that is part of the candidate’s submission.
-5. Record the demo and complete candidate-specific form fields and declarations. Verify all reviewer links and confirm the exact role wording from the invitation.
+1. Rotate the database password and admin token that were exposed earlier. Do this privately in the local .env and update any intended deployment secret store before sharing or recording; no credential was changed here.
+2. Choose the GitHub account, repository name and visibility. After reviewing the local changes, add that remote and push only when ready. No repository or remote was created and nothing was published.
+3. Run the workflow in the chosen GitHub repository, then record its URL, published version tag and registry digest. Keep the local image ID distinct from a registry digest.
+4. Capture the Swagger/local deployment screenshot after granting the browser origin permission, or capture it directly on the laptop. The browser approval gate declined access during this run; no workaround was attempted.
+5. Record the 3–5 minute demo and complete candidate-specific form fields, declarations and AI attribution. Prepare for the walkthrough and live debugging task.
+6. Decide how to address the 47 high-severity Debian package findings that Trivy currently lists without a fix version; refresh the base image/scan when vendor fixes become available. The strict scan did not pass its high/critical threshold.
 
-The assignment’s suggested 15-day schedule is advisory. No individualized deadline was included in the attachment, so the candidate should follow the date in their own invitation.
+The assignment's 15-day schedule is advisory. The supplied document does not include the individualized invitation's issue date/time or deadline.

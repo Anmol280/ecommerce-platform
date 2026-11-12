@@ -1,0 +1,13 @@
+ Network ecommerce-recovery-f5757cb0bf71_default  Creating
+ Network ecommerce-recovery-f5757cb0bf71_default  Created
+ Container ecommerce-recovery-f5757cb0bf71-db-1  Creating
+ Container ecommerce-recovery-f5757cb0bf71-db-1  Created
+ Container ecommerce-recovery-f5757cb0bf71-db-1  Starting
+ Container ecommerce-recovery-f5757cb0bf71-db-1  Started
+Isolated mount metadata: 
+ Container ecommerce-recovery-f5757cb0bf71-db-1  Stopping
+ Container ecommerce-recovery-f5757cb0bf71-db-1  Stopped
+ Container ecommerce-recovery-f5757cb0bf71-db-1  Removing
+ Container ecommerce-recovery-f5757cb0bf71-db-1  Removed
+ Network ecommerce-recovery-f5757cb0bf71_default  Removing
+ Network ecommerce-recovery-f5757cb0bf71_default  Removed

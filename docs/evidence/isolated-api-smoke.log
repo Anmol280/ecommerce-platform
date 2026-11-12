@@ -1,0 +1,54 @@
+PASS Isolated liveness (ok)
+PASS Isolated readiness (ready)
+PASS Swagger UI (200)
+PASS Unauthenticated admin request (401)
+PASS Authenticated admin request (200)
+PASS Product search result (1)
+PASS Product detail SKU (ISO-371baadc6c04)
+PASS Order creation status (201)
+PASS Stock after order (3)
+PASS Idempotent replay status (201)
+PASS Idempotent order ID (1)
+PASS Stock unchanged after replay (3)
+PASS Idempotency key conflict (409)
+PASS Order validation (422)
+PASS Order retrieval (200)
+PASS Isolated API smoke suite (SQLite tmpfs; no assignment database used)
+--- isolated API container logs (request metadata only) ---
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO:     172.17.0.1:51782 - "GET /health/ready HTTP/1.1" 200 OK
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001_initial, Initial product, order, and admin audit schema.
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     172.17.0.1:51782 - "GET /health/live HTTP/1.1" 200 OK
+INFO:     172.17.0.1:51782 - "GET /docs HTTP/1.1" 200 OK
+INFO:     172.17.0.1:51782 - "GET /api/v1/admin/audit-events HTTP/1.1" 401 Unauthorized
+INFO:     172.17.0.1:51782 - "GET /api/v1/admin/audit-events HTTP/1.1" 200 OK
+INFO:     172.17.0.1:51782 - "POST /api/v1/admin/products HTTP/1.1" 201 Created
+INFO:     172.17.0.1:51782 - "GET /api/v1/products?q=Isolated%20Smoke HTTP/1.1" 200 OK
+INFO:     172.17.0.1:51782 - "GET /api/v1/products/1 HTTP/1.1" 200 OK
+INFO:     172.17.0.1:51782 - "POST /api/v1/orders HTTP/1.1" 201 Created
+INFO:     172.17.0.1:51782 - "GET /api/v1/products/1 HTTP/1.1" 200 OK
+INFO:     172.17.0.1:51782 - "POST /api/v1/orders HTTP/1.1" 201 Created
+INFO:     172.17.0.1:51782 - "GET /api/v1/products/1 HTTP/1.1" 200 OK
+INFO:     172.17.0.1:51782 - "POST /api/v1/orders HTTP/1.1" 409 Conflict
+INFO:     172.17.0.1:51782 - "POST /api/v1/orders HTTP/1.1" 422 Unprocessable Entity
+INFO:     172.17.0.1:51782 - "GET /api/v1/orders/1 HTTP/1.1" 200 OK
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+{"timestamp":"2026-11-12T22:12:02.416782+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"ff2d5a7d-fddc-4310-9f22-4b3a64c4e5f6","method":"GET","path":"/health/ready","status_code":200,"duration_ms":2.49}
+{"timestamp":"2026-11-12T22:12:02.452410+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"c40bf869-bd67-4cca-999e-5e3dacadcfd1","method":"GET","path":"/health/live","status_code":200,"duration_ms":0.74}
+{"timestamp":"2026-11-12T22:12:02.472569+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"14eb948b-fe32-4859-922c-4c7f9c11dd7a","method":"GET","path":"/docs","status_code":200,"duration_ms":0.17}
+{"timestamp":"2026-11-12T22:12:02.480060+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"68ce2f0d-0963-4a1d-98c4-da16c17ae551","method":"GET","path":"/api/v1/admin/audit-events","status_code":401,"duration_ms":0.75}
+{"timestamp":"2026-11-12T22:12:02.496894+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"b87ec3c0-b152-42ff-ab7a-e9bbffc53d40","method":"GET","path":"/api/v1/admin/audit-events","status_code":200,"duration_ms":6.6}
+{"timestamp":"2026-11-12T22:12:02.527152+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"9e39589b-c80d-45fd-963b-42f4626bd7a3","method":"POST","path":"/api/v1/admin/products","status_code":201,"duration_ms":6.5}
+{"timestamp":"2026-11-12T22:12:02.537735+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"91c36f3d-bd39-4916-b89e-a104b0c562b3","method":"GET","path":"/api/v1/products","status_code":200,"duration_ms":3.4}
+{"timestamp":"2026-11-12T22:12:02.545926+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"8b4236b7-63dc-421d-be41-56879a75fc83","method":"GET","path":"/api/v1/products/1","status_code":200,"duration_ms":1.98}
+{"timestamp":"2026-11-12T22:12:02.564690+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"cc518ef8-4948-4543-ba87-35a4d6934241","method":"POST","path":"/api/v1/orders","status_code":201,"duration_ms":10.77}
+{"timestamp":"2026-11-12T22:12:02.582740+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"f78a65dc-1cdd-4a73-9a51-940bb3323deb","method":"GET","path":"/api/v1/products/1","status_code":200,"duration_ms":1.4}
+{"timestamp":"2026-11-12T22:12:02.590536+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"03b6e8c9-02fd-4df1-888e-86b60aeff9dc","method":"POST","path":"/api/v1/orders","status_code":201,"duration_ms":3.76}
+{"timestamp":"2026-11-12T22:12:02.602070+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"785fb95a-57ba-4d4f-a273-366b47527455","method":"GET","path":"/api/v1/products/1","status_code":200,"duration_ms":1.39}
+{"timestamp":"2026-11-12T22:12:02.615503+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"9d1f0e34-5681-432a-ada7-d365dfb9cc18","method":"POST","path":"/api/v1/orders","status_code":409,"duration_ms":5.85}
+{"timestamp":"2026-11-12T22:12:02.618779+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"0daaee15-ab39-49be-905e-1a73ddb489d3","method":"POST","path":"/api/v1/orders","status_code":422,"duration_ms":0.9}
+{"timestamp":"2026-11-12T22:12:02.623834+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"90b4d5f7-49fe-47fc-b01b-d0187ea3c464","method":"GET","path":"/api/v1/orders/1","status_code":200,"duration_ms":2.69}

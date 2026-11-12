@@ -159,9 +159,7 @@ def _canonical_order_hash(payload: OrderCreate) -> str:
 
 
 def _existing_idempotent_order(db: Session, key: str) -> Order | None:
-    return db.scalar(
-        select(Order).options(selectinload(Order.items)).where(Order.idempotency_key == key)
-    )
+    return db.scalar(select(Order).options(selectinload(Order.items)).where(Order.idempotency_key == key))
 
 
 @app.post("/api/v1/orders", response_model=OrderOut, status_code=201, tags=["orders"])
@@ -187,10 +185,7 @@ def create_order(
     # Lock products in stable ID order to avoid checkout deadlocks on PostgreSQL.
     products = list(
         db.scalars(
-            select(Product)
-            .where(Product.id.in_(sorted(quantities)))
-            .order_by(Product.id)
-            .with_for_update()
+            select(Product).where(Product.id.in_(sorted(quantities))).order_by(Product.id).with_for_update()
         ).all()
     )
     by_id = {product.id: product for product in products}
@@ -327,7 +322,9 @@ def update_order_status(
     if next_status == "cancelled":
         product_ids = sorted(item.product_id for item in order.items)
         products = list(
-            db.scalars(select(Product).where(Product.id.in_(product_ids)).order_by(Product.id).with_for_update()).all()
+            db.scalars(
+                select(Product).where(Product.id.in_(product_ids)).order_by(Product.id).with_for_update()
+            ).all()
         )
         by_id = {product.id: product for product in products}
         for item in order.items:
@@ -363,4 +360,3 @@ def list_audit_events(
         statement = statement.where(AuditEvent.entity_id == entity_id)
     statement = statement.order_by(AuditEvent.id.desc()).limit(limit)
     return list(db.scalars(statement).all())
-

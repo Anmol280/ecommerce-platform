@@ -8,8 +8,8 @@ flowchart LR
     Proxy -->|private Compose network| API[FastAPI Product and Order API]
     API -->|SQLAlchemy / PostgreSQL| DB[(PostgreSQL 16)]
     DB --- Volume[(Persistent Docker volume)]
-    GitHub[GitHub Actions] -->|tests and lint| CI[Quality job]
-    CI -->|version tag only| Registry[GitHub Container Registry]
+    GitHub[Configured GitHub Actions workflow; hosted run pending] -->|tests and lint| CI[Quality job]
+    CI -->|version tag only, after repository setup| Registry[GitHub Container Registry]
     Registry -. release image .-> VM[Optional Linux VM]
 ```
 
@@ -29,8 +29,10 @@ The automated tests use SQLite for a fast self-contained run. SQLite does not im
 - Passwords are assembled into the PostgreSQL URL through SQLAlchemy's URL builder, so punctuation in a secret is encoded correctly.
 - API/database ports stay inside Compose; Nginx is the only published service.
 - The API image runs as a non-root user and reads configuration from environment variables.
+- The Python base image is pinned by digest. Debian packages are upgraded from live repositories during a build, so the resulting OS package set can change over time.
+- The final runtime omits setuptools. A narrowly scoped, expiring Trivy exception covers only the stale setuptools 70.3.0 base-layer record; the strict scan also reports Debian high-severity findings without a fix version. See the verification report and scan evidence.
 - TLS certificates and deployment secrets are intentionally external to the repository.
 
 ## Recovery model
 
-The PostgreSQL named volume preserves data across normal container replacement. `scripts/backup.ps1` creates a custom-format dump; `scripts/restore.ps1` replaces matching objects only after an explicit `-ConfirmRestore` flag. CI publishes immutable version and commit tags on `vX.Y.Z`. A previous version can be selected by changing `IMAGE_TAG` and recreating the API container.
+The PostgreSQL named volume preserves data across normal container replacement. Its identity was checked before and after the local API image rebuild. `scripts/backup.ps1` creates a custom-format dump; `scripts/restore.ps1` replaces matching objects only after an explicit `-ConfirmRestore` flag. The isolated PostgreSQL tmpfs backup/restore rehearsal and the Nginx outage/recovery drill passed; evidence is in `docs/evidence/`. CI is configured to publish version and commit tags on `vX.Y.Z`, but the hosted workflow has not run because no GitHub remote exists. A previous version can be selected by changing `IMAGE_TAG` and recreating the API container.

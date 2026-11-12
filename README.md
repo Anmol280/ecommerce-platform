@@ -124,7 +124,7 @@ python -m pip install "pip-audit==2.10.1"
 pip-audit .
 ```
 
-The SQLite suite does not prove PostgreSQL row-lock behavior under concurrent requests. The deployed Compose stack uses PostgreSQL and should also be smoke-tested before submission.
+The SQLite suite does not prove PostgreSQL row-lock behavior under concurrent requests. The live Compose stack was checked for health, Swagger, catalog search/details, admin authentication, validation, and migration state. Order creation and idempotency were exercised in a separate SQLite tmpfs container so the existing assignment database was not changed. PostgreSQL concurrent checkout remains untested.
 
 If you do not have Python installed, the optional Docker test target runs lint and tests in a temporary image:
 
@@ -138,6 +138,8 @@ Pull requests and pushes to `main` run lint, tests, and a container build. Push 
 
 The workflow also audits Python dependencies and scans the built image for high and critical OS or library vulnerabilities. Publishing permission is confined to the version-tag job. GitHub Actions must run in the target repository to produce a pipeline URL and published image digest.
 
+The Trivy policy ignores findings without a vendor fix and contains one version-specific, expiring exception for a setuptools 70.3.0 base-layer record that is absent from the final runtime filesystem. See `.trivyignore.yaml` and the full strict scan in `docs/verification-report.md`; the full scan still reports unfixed Debian findings.
+
 For a local VM deployment, follow the release steps in the runbook, set `IMAGE_NAME` and `IMAGE_TAG` in `.env`, then `docker compose pull api` and `docker compose up -d --no-build api`. Use the same procedure with the previous image tag for rollback. The included CI workflow does not SSH into an unconfigured VM or store deployment credentials.
 
 ### Rollback procedure
@@ -146,24 +148,26 @@ Before each release, record the current known-good `IMAGE_TAG` and create a data
 
 ## Backup, restore, HTTPS, and recovery
 
-PowerShell helpers are in `scripts/backup.ps1` and `scripts/restore.ps1`. Restore requires the explicit `-ConfirmRestore` switch because it replaces matching database objects. The service's Compose health checks gate startup, the database volume survives normal container replacement, and the runbook describes restart/recovery, version rollback, and a host-Nginx/Certbot HTTPS setup for a Linux VM.
+PowerShell helpers are in `scripts/backup.ps1` and `scripts/restore.ps1`. Restore requires the explicit `-ConfirmRestore` switch because it replaces matching database objects. `scripts/test-backup-restore.ps1` performs a disposable PostgreSQL tmpfs rehearsal; it does not use the assignment database. The reverse-proxy failure/recovery check is `scripts/failure-recovery-check.ps1`. The service's Compose health checks gate startup, and the runbook describes restart/recovery, version rollback, and a host-Nginx/Certbot HTTPS setup for a Linux VM.
+
+## Latest local verification
+
+The no-cache Docker test target passed Ruff lint/format, all 10 API tests, and both pip-audit checks. The production API image rebuilt and the Compose API, PostgreSQL, and Nginx services reported healthy. Live and isolated smoke checks, the Nginx recovery drill, the tmpfs PostgreSQL backup/restore rehearsal, and actionlint workflow validation passed. Their output is saved under `docs/evidence/`.
+
+The strict Trivy high/critical gate remains failed: 47 Debian package entries have no fix version, and the scanner reports one stale setuptools record from the base image even though setuptools is removed from the final runtime. The configured CI policy scan passed with zero actionable findings after the documented exception. No GitHub-hosted workflow, registry image, public HTTPS endpoint, screenshot, or demo recording exists yet. See `docs/assignment-compliance-checklist.md` and `docs/verification-report.md` before submission.
 
 ## GitHub submission commands
 
-After you create an empty repository under your own GitHub account, run these from this project folder and replace the example remote with your repository URL:
+This project is already a local Git repository on branch `main`; no remote is configured. After choosing the account, repository name, and visibility, add that specific remote and publish only when you are ready:
 
 ```powershell
-git init
-git add .
-git commit -m "Build e-commerce product and order API"
-git branch -M main
 git remote add origin https://github.com/YOUR-USERNAME/YOUR-REPOSITORY.git
 git push -u origin main
 git tag v1.0.0
 git push origin v1.0.0
 ```
 
-These commands are prepared for you; no GitHub repository is created and no push is performed here.
+No GitHub repository was created and no push was performed here. Keep the laptop awake and Docker Desktop running only while a local-only demo needs to stay available.
 
 ## Assignment integrity and AI disclosure
 

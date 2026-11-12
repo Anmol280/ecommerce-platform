@@ -116,4 +116,3 @@ class AuditEventOut(BaseModel):
     entity_id: str
     details: dict
     created_at: datetime
-

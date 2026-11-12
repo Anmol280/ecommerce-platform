@@ -93,9 +93,7 @@ def test_admin_updates_are_protected_and_audited(client: TestClient, admin_heade
     assert all(event["actor"] == "test-operator" for event in audit.json())
 
 
-def test_empty_admin_configuration_never_authenticates(
-    client: TestClient, monkeypatch
-) -> None:
+def test_empty_admin_configuration_never_authenticates(client: TestClient, monkeypatch) -> None:
     monkeypatch.setenv("ADMIN_TOKEN", "")
     response = client.get("/api/v1/admin/audit-events", headers={"X-Admin-Token": ""})
     assert response.status_code == 401
@@ -158,9 +156,11 @@ def test_cancelling_order_releases_stock_and_status_is_audited(
     assert cancelled.status_code == 200
     assert cancelled.json()["status"] == "cancelled"
     assert client.get(f"/api/v1/products/{product['id']}").json()["stock"] == 5
-    assert client.patch(
-        f"/api/v1/admin/orders/{order['id']}/status",
-        headers=admin_headers,
-        json={"status": "confirmed"},
-    ).status_code == 409
-
+    assert (
+        client.patch(
+            f"/api/v1/admin/orders/{order['id']}/status",
+            headers=admin_headers,
+            json={"status": "confirmed"},
+        ).status_code
+        == 409
+    )

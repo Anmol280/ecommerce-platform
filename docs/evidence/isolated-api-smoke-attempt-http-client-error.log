@@ -1,0 +1,24 @@
+PASS Isolated liveness (ok)
+PASS Isolated readiness (ready)
+--- isolated API container logs (request metadata only) ---
+INFO:     172.17.0.1:37610 - "GET /health/ready HTTP/1.1" 200 OK
+INFO:     172.17.0.1:37610 - "GET /health/live HTTP/1.1" 200 OK
+INFO:     172.17.0.1:37610 - "GET /docs HTTP/1.1" 200 OK
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001_initial, Initial product, order, and admin audit schema.
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+{"timestamp":"2026-11-12T21:59:49.262077+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"3ef53d55-de74-4011-a9af-6cd39fbe2507","method":"GET","path":"/health/ready","status_code":200,"duration_ms":5.55}
+{"timestamp":"2026-11-12T21:59:49.299270+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"abfc01de-10a4-4dfa-ba28-fa7d0d47666e","method":"GET","path":"/health/live","status_code":200,"duration_ms":0.98}
+{"timestamp":"2026-11-12T21:59:49.314485+00:00","level":"info","logger":"ecommerce.api","message":"http_request","request_id":"9b575b23-3f0e-42ec-8623-8fc1d0713c32","method":"GET","path":"/docs","status_code":200,"duration_ms":0.24}
+Invoke-WebRequest : Object reference not set to an instance of an object.
+At C:\Users\anmol\Documents\Codex\2026-11-13\referenced-chatgpt-conversation-this-is-an\outputs\ecommerce-platform\scri
+pts\verify-isolated-api.ps1:39 char:21
++         $response = Invoke-WebRequest @request
++                     ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Invoke-WebRequest], NullReferenceException
+    + FullyQualifiedErrorId : System.NullReferenceException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+ 

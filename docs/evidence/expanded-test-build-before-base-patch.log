@@ -1,0 +1,362 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.16kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.12-slim
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 151B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 DONE 0.0s
+
+#5 [runtime 1/8] FROM docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b
+#5 resolve docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b 0.0s done
+#5 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 1.79kB 0.0s done
+#4 DONE 0.0s
+
+#6 [runtime 2/8] WORKDIR /app
+#6 CACHED
+
+#7 [runtime 3/8] COPY pyproject.toml ./
+#7 DONE 0.1s
+
+#8 [runtime 4/8] COPY app ./app
+#8 DONE 0.1s
+
+#9 [runtime 5/8] COPY migrations ./migrations
+#9 DONE 0.1s
+
+#10 [runtime 6/8] COPY alembic.ini ./
+#10 DONE 0.1s
+
+#11 [runtime 7/8] COPY scripts ./scripts
+#11 DONE 0.1s
+
+#12 [runtime 8/8] RUN pip install --no-cache-dir .     && groupadd --system app     && useradd --system --gid app --home-dir /app app     && chmod 0555 /app/scripts/entrypoint.sh     && chown -R app:app /app
+#12 1.598 Processing /app
+#12 1.601   Installing build dependencies: started
+#12 5.204   Installing build dependencies: finished with status 'done'
+#12 5.205   Getting requirements to build wheel: started
+#12 5.685   Getting requirements to build wheel: finished with status 'done'
+#12 5.686   Preparing metadata (pyproject.toml): started
+#12 6.140   Preparing metadata (pyproject.toml): finished with status 'done'
+#12 6.377 Collecting alembic==1.14.0 (from ecommerce-product-order-api==1.0.0)
+#12 6.574   Downloading alembic-1.14.0-py3-none-any.whl.metadata (7.4 kB)
+#12 6.624 Collecting email-validator==2.2.0 (from ecommerce-product-order-api==1.0.0)
+#12 6.667   Downloading email_validator-2.2.0-py3-none-any.whl.metadata (25 kB)
+#12 6.879 Collecting fastapi==0.162.5 (from ecommerce-product-order-api==1.0.0)
+#12 6.922   Downloading fastapi-0.162.5-py3-none-any.whl.metadata (27 kB)
+#12 7.039 Collecting starlette==1.10.0 (from ecommerce-product-order-api==1.0.0)
+#12 7.070   Downloading starlette-1.10.0-py3-none-any.whl.metadata (6.6 kB)
+#12 7.152 Collecting psycopg==3.2.3 (from psycopg[binary]==3.2.3->ecommerce-product-order-api==1.0.0)
+#12 7.209   Downloading psycopg-3.2.3-py3-none-any.whl.metadata (4.3 kB)
+#12 7.996 Collecting SQLAlchemy==2.0.36 (from ecommerce-product-order-api==1.0.0)
+#12 8.057   Downloading SQLAlchemy-2.0.36-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (9.7 kB)
+#12 8.167 Collecting uvicorn==0.34.0 (from uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0)
+#12 8.220   Downloading uvicorn-0.34.0-py3-none-any.whl.metadata (6.5 kB)
+#12 8.301 Collecting Mako (from alembic==1.14.0->ecommerce-product-order-api==1.0.0)
+#12 8.339   Downloading mako-1.4.3-py3-none-any.whl.metadata (2.9 kB)
+#12 8.406 Collecting typing-extensions>=4 (from alembic==1.14.0->ecommerce-product-order-api==1.0.0)
+#12 8.450   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+#12 8.521 Collecting dnspython>=2.0.0 (from email-validator==2.2.0->ecommerce-product-order-api==1.0.0)
+#12 8.571   Downloading dnspython-2.9.2-py3-none-any.whl.metadata (5.8 kB)
+#12 8.650 Collecting idna>=2.0.0 (from email-validator==2.2.0->ecommerce-product-order-api==1.0.0)
+#12 8.694   Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+#12 8.772 Collecting anyio>=4.1.0 (from fastapi==0.162.5->ecommerce-product-order-api==1.0.0)
+#12 8.814   Downloading anyio-4.16.0-py3-none-any.whl.metadata (4.7 kB)
+#12 9.072 Collecting pydantic>=2.9.0 (from fastapi==0.162.5->ecommerce-product-order-api==1.0.0)
+#12 9.125   Downloading pydantic-2.14.3-py3-none-any.whl.metadata (141 kB)
+#12 9.286 Collecting typing-inspection>=0.4.2 (from fastapi==0.162.5->ecommerce-product-order-api==1.0.0)
+#12 9.330   Downloading typing_inspection-0.4.5-py3-none-any.whl.metadata (2.6 kB)
+#12 9.376 Collecting annotated-doc>=0.0.2 (from fastapi==0.162.5->ecommerce-product-order-api==1.0.0)
+#12 9.431   Downloading annotated_doc-0.0.6-py3-none-any.whl.metadata (6.5 kB)
+#12 9.537 Collecting opentelemetry-api>=1.44.0 (from fastapi==0.162.5->ecommerce-product-order-api==1.0.0)
+#12 9.576   Downloading opentelemetry_api-1.45.2-py3-none-any.whl.metadata (1.4 kB)
+#12 9.917 Collecting psycopg-binary==3.2.3 (from psycopg[binary]==3.2.3->ecommerce-product-order-api==1.0.0)
+#12 9.952   Downloading psycopg_binary-3.2.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.8 kB)
+#12 10.33 Collecting greenlet!=0.4.17 (from SQLAlchemy==2.0.36->ecommerce-product-order-api==1.0.0)
+#12 10.38   Downloading greenlet-3.5.6-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (3.8 kB)
+#12 10.47 Collecting click>=7.0 (from uvicorn==0.34.0->uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0)
+#12 10.50   Downloading click-8.5.1-py3-none-any.whl.metadata (2.6 kB)
+#12 10.56 Collecting h11>=0.8 (from uvicorn==0.34.0->uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0)
+#12 10.62   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+#12 10.72 Collecting httptools>=0.6.3 (from uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0)
+#12 10.76   Downloading httptools-0.9.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (3.5 kB)
+#12 10.82 Collecting python-dotenv>=0.13 (from uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0)
+#12 10.88   Downloading python_dotenv-1.2.4-py3-none-any.whl.metadata (29 kB)
+#12 11.00 Collecting pyyaml>=5.1 (from uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0)
+#12 11.05   Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+#12 11.15 Collecting uvloop!=0.15.0,!=0.15.1,>=0.14.0 (from uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0)
+#12 11.21   Downloading uvloop-0.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.1 kB)
+#12 11.38 Collecting watchfiles>=0.13 (from uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0)
+#12 11.42   Downloading watchfiles-1.3.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)
+#12 11.70 Collecting websockets>=10.4 (from uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0)
+#12 11.76   Downloading websockets-17.4-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (6.3 kB)
+#12 11.84 Collecting annotated-types>=0.6.0 (from pydantic>=2.9.0->fastapi==0.162.5->ecommerce-product-order-api==1.0.0)
+#12 11.88   Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+#12 13.23 Collecting pydantic-core==2.50.4 (from pydantic>=2.9.0->fastapi==0.162.5->ecommerce-product-order-api==1.0.0)
+#12 13.30   Downloading pydantic_core-2.50.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (6.6 kB)
+#12 13.45 Collecting MarkupSafe>=2.0 (from Mako->alembic==1.14.0->ecommerce-product-order-api==1.0.0)
+#12 13.50   Downloading markupsafe-3.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+#12 13.55 Downloading alembic-1.14.0-py3-none-any.whl (233 kB)
+#12 13.77 Downloading email_validator-2.2.0-py3-none-any.whl (33 kB)
+#12 13.82 Downloading fastapi-0.162.5-py3-none-any.whl (151 kB)
+#12 13.96 Downloading psycopg-3.2.3-py3-none-any.whl (197 kB)
+#12 14.21 Downloading SQLAlchemy-2.0.36-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.2 MB)
+#12 16.34    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.2/3.2 MB 1.6 MB/s eta 0:00:00
+#12 16.38 Downloading starlette-1.10.0-py3-none-any.whl (80 kB)
+#12 16.49 Downloading uvicorn-0.34.0-py3-none-any.whl (62 kB)
+#12 16.57 Downloading psycopg_binary-3.2.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (4.2 MB)
+#12 18.75    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.2/4.2 MB 2.0 MB/s eta 0:00:00
+#12 18.78 Downloading annotated_doc-0.0.6-py3-none-any.whl (5.3 kB)
+#12 18.83 Downloading anyio-4.16.0-py3-none-any.whl (134 kB)
+#12 18.95 Downloading click-8.5.1-py3-none-any.whl (126 kB)
+#12 19.04 Downloading dnspython-2.9.2-py3-none-any.whl (360 kB)
+#12 19.23 Downloading greenlet-3.5.6-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (621 kB)
+#12 19.50    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 621.4/621.4 kB 2.3 MB/s eta 0:00:00
+#12 19.55 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+#12 19.62 Downloading httptools-0.9.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (552 kB)
+#12 19.85    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 552.8/552.8 kB 2.7 MB/s eta 0:00:00
+#12 19.90 Downloading idna-3.20-py3-none-any.whl (69 kB)
+#12 19.96 Downloading opentelemetry_api-1.45.2-py3-none-any.whl (60 kB)
+#12 20.03 Downloading pydantic-2.14.3-py3-none-any.whl (494 kB)
+#12 20.33 Downloading pydantic_core-2.50.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (2.3 MB)
+#12 21.30    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 2.6 MB/s eta 0:00:00
+#12 21.34 Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+#12 21.39 Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+#12 21.71    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.9/807.9 kB 2.6 MB/s eta 0:00:00
+#12 21.76 Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+#12 21.82 Downloading typing_inspection-0.4.5-py3-none-any.whl (14 kB)
+#12 21.86 Downloading uvloop-0.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.5 MB)
+#12 23.58    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 2.6 MB/s eta 0:00:00
+#12 23.62 Downloading watchfiles-1.3.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (458 kB)
+#12 23.82 Downloading websockets-17.4-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (226 kB)
+#12 23.92 Downloading mako-1.4.3-py3-none-any.whl (80 kB)
+#12 24.07 Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+#12 24.12 Downloading markupsafe-3.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+#12 24.15 Building wheels for collected packages: ecommerce-product-order-api
+#12 24.16   Building wheel for ecommerce-product-order-api (pyproject.toml): started
+#12 24.60   Building wheel for ecommerce-product-order-api (pyproject.toml): finished with status 'done'
+#12 24.60   Created wheel for ecommerce-product-order-api: filename=ecommerce_product_order_api-1.0.0-py3-none-any.whl size=9775 sha256=882c0406e27edf88563182ba65dd218d4df885283167182f2f49f0f9121b824e
+#12 24.60   Stored in directory: /tmp/pip-ephem-wheel-cache-pxjh7pq7/wheels/54/1b/b7/aa63e25c8f14f4f2ae7b04e6097bdecb770e455c5c1ee0a600
+#12 24.60 Successfully built ecommerce-product-order-api
+#12 24.64 Installing collected packages: websockets, uvloop, typing-extensions, pyyaml, python-dotenv, psycopg-binary, MarkupSafe, idna, httptools, h11, greenlet, dnspython, click, annotated-types, annotated-doc, uvicorn, typing-inspection, SQLAlchemy, pydantic-core, psycopg, opentelemetry-api, Mako, email-validator, anyio, watchfiles, starlette, pydantic, alembic, fastapi, ecommerce-product-order-api
+#12 27.24 Successfully installed Mako-1.4.3 MarkupSafe-3.0.4 SQLAlchemy-2.0.36 alembic-1.14.0 annotated-doc-0.0.6 annotated-types-0.8.0 anyio-4.16.0 click-8.5.1 dnspython-2.9.2 ecommerce-product-order-api-1.0.0 email-validator-2.2.0 fastapi-0.162.5 greenlet-3.5.6 h11-0.16.0 httptools-0.9.0 idna-3.20 opentelemetry-api-1.45.2 psycopg-3.2.3 psycopg-binary-3.2.3 pydantic-2.14.3 pydantic-core-2.50.4 python-dotenv-1.2.4 pyyaml-6.0.3 starlette-1.10.0 typing-extensions-4.16.0 typing-inspection-0.4.5 uvicorn-0.34.0 uvloop-0.23.0 watchfiles-1.3.0 websockets-17.4
+#12 27.24 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#12 27.54 
+#12 27.54 [notice] A new release of pip is available: 25.0.1 -> 26.3
+#12 27.54 [notice] To update, run: pip install --upgrade pip
+#12 DONE 28.3s
+
+#13 [test 1/4] RUN pip install --no-cache-dir ".[dev]"
+#13 1.142 Processing /app
+#13 1.144   Installing build dependencies: started
+#13 3.865   Installing build dependencies: finished with status 'done'
+#13 3.865   Getting requirements to build wheel: started
+#13 4.299   Getting requirements to build wheel: finished with status 'done'
+#13 4.300   Preparing metadata (pyproject.toml): started
+#13 4.820   Preparing metadata (pyproject.toml): finished with status 'done'
+#13 4.823 Requirement already satisfied: alembic==1.14.0 in /usr/local/lib/python3.12/site-packages (from ecommerce-product-order-api==1.0.0) (1.14.0)
+#13 4.824 Requirement already satisfied: email-validator==2.2.0 in /usr/local/lib/python3.12/site-packages (from ecommerce-product-order-api==1.0.0) (2.2.0)
+#13 4.824 Requirement already satisfied: fastapi==0.162.5 in /usr/local/lib/python3.12/site-packages (from ecommerce-product-order-api==1.0.0) (0.162.5)
+#13 4.824 Requirement already satisfied: starlette==1.10.0 in /usr/local/lib/python3.12/site-packages (from ecommerce-product-order-api==1.0.0) (1.10.0)
+#13 4.825 Requirement already satisfied: psycopg==3.2.3 in /usr/local/lib/python3.12/site-packages (from psycopg[binary]==3.2.3->ecommerce-product-order-api==1.0.0) (3.2.3)
+#13 4.825 Requirement already satisfied: SQLAlchemy==2.0.36 in /usr/local/lib/python3.12/site-packages (from ecommerce-product-order-api==1.0.0) (2.0.36)
+#13 4.825 Requirement already satisfied: uvicorn==0.34.0 in /usr/local/lib/python3.12/site-packages (from uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0) (0.34.0)
+#13 4.827 Requirement already satisfied: Mako in /usr/local/lib/python3.12/site-packages (from alembic==1.14.0->ecommerce-product-order-api==1.0.0) (1.4.3)
+#13 4.827 Requirement already satisfied: typing-extensions>=4 in /usr/local/lib/python3.12/site-packages (from alembic==1.14.0->ecommerce-product-order-api==1.0.0) (4.16.0)
+#13 4.830 Requirement already satisfied: dnspython>=2.0.0 in /usr/local/lib/python3.12/site-packages (from email-validator==2.2.0->ecommerce-product-order-api==1.0.0) (2.9.2)
+#13 4.830 Requirement already satisfied: idna>=2.0.0 in /usr/local/lib/python3.12/site-packages (from email-validator==2.2.0->ecommerce-product-order-api==1.0.0) (3.20)
+#13 4.836 Requirement already satisfied: anyio>=4.1.0 in /usr/local/lib/python3.12/site-packages (from fastapi==0.162.5->ecommerce-product-order-api==1.0.0) (4.16.0)
+#13 4.837 Requirement already satisfied: pydantic>=2.9.0 in /usr/local/lib/python3.12/site-packages (from fastapi==0.162.5->ecommerce-product-order-api==1.0.0) (2.14.3)
+#13 4.837 Requirement already satisfied: typing-inspection>=0.4.2 in /usr/local/lib/python3.12/site-packages (from fastapi==0.162.5->ecommerce-product-order-api==1.0.0) (0.4.5)
+#13 4.838 Requirement already satisfied: annotated-doc>=0.0.2 in /usr/local/lib/python3.12/site-packages (from fastapi==0.162.5->ecommerce-product-order-api==1.0.0) (0.0.6)
+#13 4.839 Requirement already satisfied: opentelemetry-api>=1.44.0 in /usr/local/lib/python3.12/site-packages (from fastapi==0.162.5->ecommerce-product-order-api==1.0.0) (1.45.2)
+#13 4.843 Requirement already satisfied: psycopg-binary==3.2.3 in /usr/local/lib/python3.12/site-packages (from psycopg[binary]==3.2.3->ecommerce-product-order-api==1.0.0) (3.2.3)
+#13 4.847 Requirement already satisfied: greenlet!=0.4.17 in /usr/local/lib/python3.12/site-packages (from SQLAlchemy==2.0.36->ecommerce-product-order-api==1.0.0) (3.5.6)
+#13 4.852 Requirement already satisfied: click>=7.0 in /usr/local/lib/python3.12/site-packages (from uvicorn==0.34.0->uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0) (8.5.1)
+#13 4.853 Requirement already satisfied: h11>=0.8 in /usr/local/lib/python3.12/site-packages (from uvicorn==0.34.0->uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0) (0.16.0)
+#13 4.856 Requirement already satisfied: httptools>=0.6.3 in /usr/local/lib/python3.12/site-packages (from uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0) (0.9.0)
+#13 4.857 Requirement already satisfied: python-dotenv>=0.13 in /usr/local/lib/python3.12/site-packages (from uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0) (1.2.4)
+#13 4.857 Requirement already satisfied: pyyaml>=5.1 in /usr/local/lib/python3.12/site-packages (from uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0) (6.0.3)
+#13 4.858 Requirement already satisfied: uvloop!=0.15.0,!=0.15.1,>=0.14.0 in /usr/local/lib/python3.12/site-packages (from uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0) (0.23.0)
+#13 4.859 Requirement already satisfied: watchfiles>=0.13 in /usr/local/lib/python3.12/site-packages (from uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0) (1.3.0)
+#13 4.860 Requirement already satisfied: websockets>=10.4 in /usr/local/lib/python3.12/site-packages (from uvicorn[standard]==0.34.0->ecommerce-product-order-api==1.0.0) (17.4)
+#13 5.008 Collecting httpx2==2.16.0 (from ecommerce-product-order-api==1.0.0)
+#13 5.125   Downloading httpx2-2.16.0-py3-none-any.whl.metadata (10 kB)
+#13 5.283 Collecting pytest==8.3.4 (from ecommerce-product-order-api==1.0.0)
+#13 5.337   Downloading pytest-8.3.4-py3-none-any.whl.metadata (7.5 kB)
+#13 5.885 Collecting ruff==0.8.4 (from ecommerce-product-order-api==1.0.0)
+#13 5.939   Downloading ruff-0.8.4-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (25 kB)
+#13 6.026 Collecting httpcore2==2.16.0 (from httpx2==2.16.0->ecommerce-product-order-api==1.0.0)
+#13 6.075   Downloading httpcore2-2.16.0-py3-none-any.whl.metadata (27 kB)
+#13 6.164 Collecting truststore>=0.10 (from httpx2==2.16.0->ecommerce-product-order-api==1.0.0)
+#13 6.215   Downloading truststore-0.10.5-py3-none-any.whl.metadata (4.5 kB)
+#13 6.318 Collecting iniconfig (from pytest==8.3.4->ecommerce-product-order-api==1.0.0)
+#13 6.361   Downloading iniconfig-2.3.1-py3-none-any.whl.metadata (2.8 kB)
+#13 6.455 Collecting packaging (from pytest==8.3.4->ecommerce-product-order-api==1.0.0)
+#13 6.495   Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+#13 6.565 Collecting pluggy<2,>=1.5 (from pytest==8.3.4->ecommerce-product-order-api==1.0.0)
+#13 6.615   Downloading pluggy-1.7.0-py3-none-any.whl.metadata (5.0 kB)
+#13 6.635 Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.12/site-packages (from pydantic>=2.9.0->fastapi==0.162.5->ecommerce-product-order-api==1.0.0) (0.8.0)
+#13 6.635 Requirement already satisfied: pydantic-core==2.50.4 in /usr/local/lib/python3.12/site-packages (from pydantic>=2.9.0->fastapi==0.162.5->ecommerce-product-order-api==1.0.0) (2.50.4)
+#13 6.646 Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.12/site-packages (from Mako->alembic==1.14.0->ecommerce-product-order-api==1.0.0) (3.0.4)
+#13 6.702 Downloading httpx2-2.16.0-py3-none-any.whl (97 kB)
+#13 6.805 Downloading pytest-8.3.4-py3-none-any.whl (343 kB)
+#13 7.051 Downloading ruff-0.8.4-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (11.2 MB)
+#13 14.94    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.2/11.2 MB 1.5 MB/s eta 0:00:00
+#13 14.98 Downloading httpcore2-2.16.0-py3-none-any.whl (85 kB)
+#13 15.10 Downloading pluggy-1.7.0-py3-none-any.whl (27 kB)
+#13 15.16 Downloading truststore-0.10.5-py3-none-any.whl (19 kB)
+#13 15.20 Downloading iniconfig-2.3.1-py3-none-any.whl (7.6 kB)
+#13 15.28 Downloading packaging-26.3-py3-none-any.whl (129 kB)
+#13 15.43 Building wheels for collected packages: ecommerce-product-order-api
+#13 15.43   Building wheel for ecommerce-product-order-api (pyproject.toml): started
+#13 15.92   Building wheel for ecommerce-product-order-api (pyproject.toml): finished with status 'done'
+#13 15.92   Created wheel for ecommerce-product-order-api: filename=ecommerce_product_order_api-1.0.0-py3-none-any.whl size=9775 sha256=42893ceb5e2f8e52e57dab6912e5da52983f1432eed6502ce4e7249ed8bfe116
+#13 15.92   Stored in directory: /tmp/pip-ephem-wheel-cache-8yczi94l/wheels/54/1b/b7/aa63e25c8f14f4f2ae7b04e6097bdecb770e455c5c1ee0a600
+#13 15.92 Successfully built ecommerce-product-order-api
+#13 15.95 Installing collected packages: truststore, ruff, pluggy, packaging, iniconfig, pytest, httpcore2, httpx2, ecommerce-product-order-api
+#13 16.56   Attempting uninstall: ecommerce-product-order-api
+#13 16.57     Found existing installation: ecommerce-product-order-api 1.0.0
+#13 16.57     Uninstalling ecommerce-product-order-api-1.0.0:
+#13 16.58       Successfully uninstalled ecommerce-product-order-api-1.0.0
+#13 16.60 Successfully installed ecommerce-product-order-api-1.0.0 httpcore2-2.16.0 httpx2-2.16.0 iniconfig-2.3.1 packaging-26.3 pluggy-1.7.0 pytest-8.3.4 ruff-0.8.4 truststore-0.10.5
+#13 16.60 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#13 16.85 
+#13 16.85 [notice] A new release of pip is available: 25.0.1 -> 26.3
+#13 16.85 [notice] To update, run: pip install --upgrade pip
+#13 DONE 17.1s
+
+#14 [test 2/4] RUN pip install --no-cache-dir "pip-audit==2.10.1"
+#14 1.454 Collecting pip-audit==2.10.1
+#14 1.580   Downloading pip_audit-2.10.1-py3-none-any.whl.metadata (28 kB)
+#14 1.717 Collecting CacheControl>=0.13.0 (from CacheControl[filecache]>=0.13.0->pip-audit==2.10.1)
+#14 1.756   Downloading cachecontrol-0.14.4-py3-none-any.whl.metadata (3.1 kB)
+#14 1.878 Collecting cyclonedx-python-lib<12,>=5 (from pip-audit==2.10.1)
+#14 1.921   Downloading cyclonedx_python_lib-11.12.0-py3-none-any.whl.metadata (6.9 kB)
+#14 1.941 Requirement already satisfied: packaging>=23.0.0 in /usr/local/lib/python3.12/site-packages (from pip-audit==2.10.1) (26.3)
+#14 1.995 Collecting pip-api>=0.0.28 (from pip-audit==2.10.1)
+#14 2.111   Downloading pip_api-0.0.35-py3-none-any.whl.metadata (17 kB)
+#14 2.196 Collecting pip-requirements-parser>=32.0.0 (from pip-audit==2.10.1)
+#14 2.227   Downloading pip_requirements_parser-32.0.1-py3-none-any.whl.metadata (9.3 kB)
+#14 2.296 Collecting requests>=2.31.0 (from pip-audit==2.10.1)
+#14 2.354   Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+#14 2.476 Collecting rich>=12.4 (from pip-audit==2.10.1)
+#14 2.508   Downloading rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+#14 2.623 Collecting tomli>=2.2.1 (from pip-audit==2.10.1)
+#14 2.671   Downloading tomli-2.5.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (10 kB)
+#14 2.717 Collecting tomli-w>=1.2.0 (from pip-audit==2.10.1)
+#14 2.755   Downloading tomli_w-1.2.0-py3-none-any.whl.metadata (5.7 kB)
+#14 2.934 Collecting platformdirs>=4.2.0 (from pip-audit==2.10.1)
+#14 2.980   Downloading platformdirs-4.14.5-py3-none-any.whl.metadata (5.7 kB)
+#14 3.228 Collecting msgpack<2.0.0,>=0.5.2 (from CacheControl>=0.13.0->CacheControl[filecache]>=0.13.0->pip-audit==2.10.1)
+#14 3.280   Downloading msgpack-1.2.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (8.3 kB)
+#14 3.409 Collecting filelock>=3.8.0 (from CacheControl[filecache]>=0.13.0->pip-audit==2.10.1)
+#14 3.452   Downloading filelock-4.2.10-py3-none-any.whl.metadata (2.3 kB)
+#14 3.521 Collecting license-expression<31,>=30 (from cyclonedx-python-lib<12,>=5->pip-audit==2.10.1)
+#14 3.564   Downloading license_expression-30.4.4-py3-none-any.whl.metadata (11 kB)
+#14 3.654 Collecting packageurl-python<2,>=0.11 (from cyclonedx-python-lib<12,>=5->pip-audit==2.10.1)
+#14 3.694   Downloading packageurl_python-0.17.6-py3-none-any.whl.metadata (5.1 kB)
+#14 3.791 Collecting py-serializable<3.0.0,>=2.1.0 (from cyclonedx-python-lib<12,>=5->pip-audit==2.10.1)
+#14 3.838   Downloading py_serializable-2.2.0-py3-none-any.whl.metadata (4.5 kB)
+#14 3.897 Collecting sortedcontainers<3.0.0,>=2.4.0 (from cyclonedx-python-lib<12,>=5->pip-audit==2.10.1)
+#14 3.929   Downloading sortedcontainers-2.4.0-py2.py3-none-any.whl.metadata (10 kB)
+#14 3.943 Requirement already satisfied: typing_extensions<5.0,>=4.6 in /usr/local/lib/python3.12/site-packages (from cyclonedx-python-lib<12,>=5->pip-audit==2.10.1) (4.16.0)
+#14 3.944 Requirement already satisfied: pip in /usr/local/lib/python3.12/site-packages (from pip-api>=0.0.28->pip-audit==2.10.1) (25.0.1)
+#14 4.029 Collecting pyparsing (from pip-requirements-parser>=32.0.0->pip-audit==2.10.1)
+#14 4.069   Downloading pyparsing-3.3.3-py3-none-any.whl.metadata (5.9 kB)
+#14 4.392 Collecting charset_normalizer<4,>=2 (from requests>=2.31.0->pip-audit==2.10.1)
+#14 4.449   Downloading charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (46 kB)
+#14 4.489 Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.12/site-packages (from requests>=2.31.0->pip-audit==2.10.1) (3.20)
+#14 4.581 Collecting urllib3<3,>=1.26 (from requests>=2.31.0->pip-audit==2.10.1)
+#14 4.620   Downloading urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+#14 4.712 Collecting certifi>=2023.5.7 (from requests>=2.31.0->pip-audit==2.10.1)
+#14 4.763   Downloading certifi-2026.10.23-py3-none-any.whl.metadata (2.5 kB)
+#14 4.838 Collecting markdown-it-py>=2.2.0 (from rich>=12.4->pip-audit==2.10.1)
+#14 4.875   Downloading markdown_it_py-4.3.0-py3-none-any.whl.metadata (7.9 kB)
+#14 4.978 Collecting pygments<3.0.0,>=2.13.0 (from rich>=12.4->pip-audit==2.10.1)
+#14 5.021   Downloading pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+#14 5.100 Collecting boolean.py>=4.0 (from license-expression<31,>=30->cyclonedx-python-lib<12,>=5->pip-audit==2.10.1)
+#14 5.141   Downloading boolean_py-5.0-py3-none-any.whl.metadata (2.3 kB)
+#14 5.201 Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=12.4->pip-audit==2.10.1)
+#14 5.232   Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+#14 5.288 Collecting defusedxml<0.8.0,>=0.7.1 (from py-serializable<3.0.0,>=2.1.0->cyclonedx-python-lib<12,>=5->pip-audit==2.10.1)
+#14 5.340   Downloading defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+#14 5.416 Downloading pip_audit-2.10.1-py3-none-any.whl (62 kB)
+#14 5.522 Downloading cachecontrol-0.14.4-py3-none-any.whl (22 kB)
+#14 5.614 Downloading cyclonedx_python_lib-11.12.0-py3-none-any.whl (529 kB)
+#14 6.069    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 529.5/529.5 kB 1.7 MB/s eta 0:00:00
+#14 6.114 Downloading pip_api-0.0.35-py3-none-any.whl (123 kB)
+#14 6.281 Downloading pip_requirements_parser-32.0.1-py3-none-any.whl (35 kB)
+#14 6.357 Downloading platformdirs-4.14.5-py3-none-any.whl (35 kB)
+#14 6.452 Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+#14 6.591 Downloading rich-15.0.0-py3-none-any.whl (310 kB)
+#14 6.948 Downloading tomli-2.5.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (286 kB)
+#14 7.343 Downloading tomli_w-1.2.0-py3-none-any.whl (6.7 kB)
+#14 7.395 Downloading certifi-2026.10.23-py3-none-any.whl (135 kB)
+#14 7.618 Downloading charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (257 kB)
+#14 8.033 Downloading filelock-4.2.10-py3-none-any.whl (218 kB)
+#14 8.344 Downloading license_expression-30.4.4-py3-none-any.whl (120 kB)
+#14 8.625 Downloading markdown_it_py-4.3.0-py3-none-any.whl (96 kB)
+#14 8.805 Downloading msgpack-1.2.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (475 kB)
+#14 9.238 Downloading packageurl_python-0.17.6-py3-none-any.whl (36 kB)
+#14 9.354 Downloading py_serializable-2.2.0-py3-none-any.whl (23 kB)
+#14 9.404 Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+#14 10.55    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 1.1 MB/s eta 0:00:00
+#14 10.60 Downloading sortedcontainers-2.4.0-py2.py3-none-any.whl (29 kB)
+#14 10.67 Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+#14 10.85 Downloading pyparsing-3.3.3-py3-none-any.whl (126 kB)
+#14 11.03 Downloading boolean_py-5.0-py3-none-any.whl (26 kB)
+#14 11.09 Downloading defusedxml-0.7.1-py2.py3-none-any.whl (25 kB)
+#14 11.25 Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+#14 11.34 Installing collected packages: sortedcontainers, boolean.py, urllib3, tomli-w, tomli, pyparsing, pygments, platformdirs, pip-api, packageurl-python, msgpack, mdurl, license-expression, filelock, defusedxml, charset_normalizer, certifi, requests, py-serializable, pip-requirements-parser, markdown-it-py, rich, cyclonedx-python-lib, CacheControl, pip-audit
+#14 12.84 Successfully installed CacheControl-0.14.4 boolean.py-5.0 certifi-2026.10.23 charset_normalizer-3.5.2 cyclonedx-python-lib-11.12.0 defusedxml-0.7.1 filelock-4.2.10 license-expression-30.4.4 markdown-it-py-4.3.0 mdurl-0.1.2 msgpack-1.2.4 packageurl-python-0.17.6 pip-api-0.0.35 pip-audit-2.10.1 pip-requirements-parser-32.0.1 platformdirs-4.14.5 py-serializable-2.2.0 pygments-2.21.0 pyparsing-3.3.3 requests-2.34.2 rich-15.0.0 sortedcontainers-2.4.0 tomli-2.5.0 tomli-w-1.2.0 urllib3-2.8.0
+#14 12.85 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#14 13.25 
+#14 13.25 [notice] A new release of pip is available: 25.0.1 -> 26.3
+#14 13.25 [notice] To update, run: pip install --upgrade pip
+#14 DONE 13.5s
+
+#15 [test 3/4] COPY tests ./tests
+#15 DONE 0.1s
+
+#16 [test 4/4] RUN ruff check app tests migrations     && ruff format --check app tests migrations     && pytest     && pip-audit .
+#16 0.271 All checks passed!
+#16 0.288 12 files already formatted
+#16 1.228 ============================= test session starts ==============================
+#16 1.229 platform linux -- Python 3.12.16, pytest-8.3.4, pluggy-1.7.0
+#16 1.229 rootdir: /app
+#16 1.229 configfile: pyproject.toml
+#16 1.229 testpaths: tests
+#16 1.229 plugins: platformdirs-4.14.5, anyio-4.16.0
+#16 1.244 collected 10 items
+#16 1.245 
+#16 1.245 tests/test_api.py ..........                                             [100%]
+#16 1.486 
+#16 1.486 ============================== 10 passed in 0.26s ==============================
+#16 24.42 No known vulnerabilities found
+#16 DONE 24.5s
+
+#17 exporting to image
+#17 exporting layers
+#17 exporting layers 3.1s done
+#17 exporting manifest sha256:4c7434e3efc39f5fef218261dd734d5ffd838fc7554c75200ee66e1ec4028c65 0.0s done
+#17 exporting config sha256:827b2c033ac96ce9146b53e1e1e60b9cf801b51ddaafabe94fb2978869a1d409 0.0s done
+#17 exporting attestation manifest sha256:7381c86760ef6cd58ef69f0238272d7767c47933a6488c0dbeebbf7f30643006 0.0s done
+#17 exporting manifest list sha256:e7455e1c63a57e1dcf4d46a9ec682d705d5190c9d3c79692d7351a1936980e16
+#17 exporting manifest list sha256:e7455e1c63a57e1dcf4d46a9ec682d705d5190c9d3c79692d7351a1936980e16 0.0s done
+#17 naming to docker.io/library/ecommerce-product-order-api:test done
+#17 unpacking to docker.io/library/ecommerce-product-order-api:test
+#17 unpacking to docker.io/library/ecommerce-product-order-api:test 1.2s done
+#17 DONE 4.5s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/vgs2zcvv7gxpuzd6tlgu1owtw

@@ -1,0 +1,14 @@
+PASS Isolated liveness (ok)
+PASS Isolated readiness (ready)
+--- isolated API container logs (request metadata only) ---
+INFO:     172.17.0.1:42158 - "GET /health/ready HTTP/1.1" 200 OK
+INFO:     172.17.0.1:42158 - "GET /health/live HTTP/1.1" 200 OK
+INFO:     172.17.0.1:42158 - "GET /docs HTTP/1.1" 200 OK
+docker.exe : INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+At C:\Users\anmol\Documents\Codex\2026-11-13\referenced-chatgpt-conversation-this-is-an\outputs\ecommerce-platform\scri
+pts\verify-isolated-api.ps1:160 char:9
++         & docker logs $containerName 2>&1
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (INFO  [alembic....mpl SQLiteImpl.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 

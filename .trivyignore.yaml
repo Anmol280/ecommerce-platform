@@ -1,0 +1,9 @@
+vulnerabilities:
+  - id: CVE-2025-47273
+    purls:
+      - pkg:pypi/setuptools@70.3.0
+    expired_at: 2026-12-13
+    statement: >-
+      The pinned Python base image layer reports setuptools 70.3.0 even though
+      the final runtime image removes setuptools and its distribution metadata.
+      Recheck the base image and remove this exception before its expiry.

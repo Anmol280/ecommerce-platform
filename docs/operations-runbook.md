@@ -20,6 +20,12 @@ Run the read-only application smoke checks after startup. The script verifies he
 .\scripts\verify-runtime.ps1
 ```
 
+For order creation and retry checks without writing test orders to the assignment database, run the isolated API smoke. It creates a temporary read-only API container and stores its SQLite database in tmpfs; the script removes only that named test container when it finishes.
+
+```powershell
+.\scripts\verify-isolated-api.ps1
+```
+
 Load sample products once:
 
 ```powershell
@@ -59,6 +65,8 @@ The automated proxy recovery drill stops only Nginx, verifies that the external 
 .\scripts\failure-recovery-check.ps1
 ```
 
+The 2026-11-13 local rehearsal detected the Nginx outage and restored liveness/readiness after restarting the proxy. The recorded output is in `docs/evidence/recovery-drill.log`.
+
 ## Backup and restore
 
 Back up before a release or database maintenance:
@@ -77,7 +85,13 @@ Invoke-RestMethod http://localhost:8080/health/ready
 
 Copy backups off the VM and protect them as sensitive data. The example does not implement automatic retention or off-site scheduling.
 
-The backup and restore commands should be rehearsed against a disposable database before relying on them for production data. The verification report records whether that rehearsal ran; no live-database restore is part of this assignment check.
+The disposable rehearsal has passed. It creates a unique Compose project and a PostgreSQL data directory verified as tmpfs, makes a synthetic table, backs it up, changes a marker, restores the dump, and checks that the original marker returns. It does not use the assignment database or create a persistent test volume:
+
+```powershell
+.\scripts\test-backup-restore.ps1
+```
+
+The recorded output is in `docs/evidence/backup-restore-rehearsal.log`. This rehearsal validates the helper scripts, but it is not a restore of production data. Continue to verify the dump and target database before any real restore.
 
 ## Release and rollback
 
@@ -111,4 +125,4 @@ sudo certbot --nginx -d api.example.com
 
 Use a host Nginx site whose TLS server proxies to `http://127.0.0.1:8080`, then verify renewal with `sudo certbot renew --dry-run`. Keep certificate files and private keys out of Git. Do not expose the app publicly until the admin token and database password have been replaced.
 
-An editable starting point is [`deploy/nginx/host-https.conf.example`](../deploy/nginx/host-https.conf.example); replace `api.example.com` with the controlled domain before enabling it.
+An editable starting point is [`deploy/nginx/host-https.conf.example`](../deploy/nginx/host-https.conf.example); replace `api.example.com` with the controlled domain before enabling it. This configuration is an example only; no certificate or public HTTPS endpoint has been provisioned.

@@ -27,23 +27,39 @@ function Get-HttpStatus {
         [string]$Body = ""
     )
 
-    try {
-        $request = @{
-            Uri        = $Uri
-            Method     = $Method
-            TimeoutSec = 10
-            Headers    = $Headers
-        }
-        if ($Body) {
-            $request.ContentType = "application/json"
-            $request.Body = $Body
-        }
-        $response = Invoke-WebRequest @request
-        return [int]$response.StatusCode
+    $request = [System.Net.HttpWebRequest]::Create($Uri)
+    $request.Method = $Method
+    $request.Timeout = 10000
+    foreach ($headerName in $Headers.Keys) {
+        $request.Headers[$headerName] = [string]$Headers[$headerName]
     }
-    catch {
+    if ($Body) {
+        $bodyBytes = [System.Text.Encoding]::UTF8.GetBytes($Body)
+        $request.ContentType = "application/json"
+        $request.ContentLength = $bodyBytes.Length
+        $requestStream = $request.GetRequestStream()
+        try {
+            $requestStream.Write($bodyBytes, 0, $bodyBytes.Length)
+        }
+        finally {
+            $requestStream.Dispose()
+        }
+    }
+
+    try {
+        $response = $request.GetResponse()
+        try {
+            return [int]$response.StatusCode
+        }
+        finally {
+            $response.Close()
+        }
+    }
+    catch [System.Net.WebException] {
         if ($_.Exception.Response) {
-            return [int]$_.Exception.Response.StatusCode
+            $statusCode = [int]$_.Exception.Response.StatusCode
+            $_.Exception.Response.Close()
+            return $statusCode
         }
         throw
     }
@@ -96,8 +112,16 @@ try {
     Assert-Equal "Order validation" (Get-HttpStatus "$base/api/v1/orders" -Method "POST" -Headers $orderHeaders -Body $invalidOrder) 422
     Assert-Equal "Missing order lookup" (Get-HttpStatus "$base/api/v1/orders/2147483647") 404
 
-    $migrationOutput = (& docker compose exec -T api alembic current 2>&1 | Out-String).Trim()
-    if ($LASTEXITCODE -ne 0 -or $migrationOutput -notmatch "\(head\)") {
+    $previousErrorActionPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = "Continue"
+        $migrationOutput = (& docker compose exec -T api alembic current 2>&1 | Out-String).Trim()
+        $migrationExitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
+    if ($migrationExitCode -ne 0 -or $migrationOutput -notmatch "\(head\)") {
         throw "Database migration is not at head."
     }
     Write-Output "PASS Database migration is at head"

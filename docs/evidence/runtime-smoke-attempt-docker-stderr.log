@@ -1,0 +1,17 @@
+PASS Liveness (ok)
+PASS Database readiness (ready)
+PASS Swagger UI (200)
+PASS Product search (1 result(s))
+PASS Product detail (200)
+PASS Admin rejects missing token (401)
+PASS Admin accepts configured token (200)
+PASS Order validation (422)
+PASS Missing order lookup (404)
+docker.exe : INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+At C:\Users\anmol\Documents\Codex\2026-11-13\referenced-chatgpt-conversation-this-is-an\outputs\ecommerce-platform\scri
+pts\verify-runtime.ps1:115 char:25
++ ... onOutput = (& docker compose exec -T api alembic current 2>&1 | Out-S ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (INFO  [alembic....PostgresqlImpl.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 

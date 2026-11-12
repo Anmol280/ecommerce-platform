@@ -1,0 +1,4 @@
+Final static checks
+PASS git diff --check
+PASS PowerShell parser checks for all scripts
+PASS docker compose config --quiet

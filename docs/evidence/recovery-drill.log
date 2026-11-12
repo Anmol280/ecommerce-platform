@@ -1,0 +1,10 @@
+ Container ecommerce-platform-nginx-1  Stopping
+ Container ecommerce-platform-nginx-1  Stopped
+PASS Proxy outage detected while API remained ready
+ Container ecommerce-platform-db-1  Waiting
+ Container ecommerce-platform-db-1  Healthy
+ Container ecommerce-platform-api-1  Waiting
+ Container ecommerce-platform-api-1  Healthy
+ Container ecommerce-platform-nginx-1  Starting
+ Container ecommerce-platform-nginx-1  Started
+PASS Proxy restart restored liveness and database readiness

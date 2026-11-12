@@ -1,0 +1,24 @@
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001_initial, Initial product, order, and admin audit schema.
+Name   Version ID              Fix Versions
+------ ------- --------------- ------------
+pip    25.0.1  PYSEC-2026-1795 25.3
+pip    25.0.1  PYSEC-2026-1796 26.0
+pip    25.0.1  PYSEC-2026-2875 26.1
+pip    25.0.1  PYSEC-2026-2876 26.1
+pip    25.0.1  PYSEC-2026-196  26.1.2
+Found 14 known vulnerabilities in 2 packages
+pip    25.0.1  PYSEC-2026-1795 25.3
+pip    25.0.1  PYSEC-2026-1796 26.0
+pip    25.0.1  PYSEC-2026-196  26.1.2
+pip    25.0.1  PYSEC-2026-2875 26.1
+pip    25.0.1  PYSEC-2026-2876 26.1
+pip    25.0.1  PYSEC-2026-3721 26.2
+pip    25.0.1  PYSEC-2026-3721 26.2.0
+pytest 8.3.4   PYSEC-2026-1845 9.0.3
+pytest 8.3.4   PYSEC-2026-1845 9.0.3
+
+Name                        Skip Reason
+--------------------------- ------------------------------------------------------------------------------------------
+ecommerce-product-order-api Dependency not found on PyPI and could not be audited: ecommerce-product-order-api (1.0.0)

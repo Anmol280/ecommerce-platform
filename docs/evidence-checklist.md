@@ -1,19 +1,23 @@
 # Submission evidence checklist
 
-- [ ] `docker compose ps` shows database, API, and Nginx healthy.
-- [ ] `/health/live` and `/health/ready` return success through Nginx.
-- [ ] Product search and one product detail response are visible.
-- [ ] Admin update without `X-Admin-Token` returns 401.
-- [ ] Authorized product/stock update appears in audit events with the chosen actor.
-- [ ] New order shows the item price snapshot and total; stock decreases.
-- [ ] Exact retry with the same idempotency key returns the same order ID.
-- [ ] Reusing the key with a different payload returns 409.
-- [ ] Insufficient stock returns 409 and leaves stock unchanged.
-- [ ] Cancellation restores stock and records an audit event.
-- [ ] CI run is green for lint and tests; a `vX.Y.Z` tag publishes the versioned image.
-- [ ] Python dependency audit and built-image vulnerability scan pass in CI.
-- [ ] `scripts/failure-recovery-check.ps1` detects the proxy outage, restarts Nginx, and restores health/readiness.
-- [ ] A backup file is created and a restore is demonstrated only in a disposable environment.
-- [ ] Backup and restore rehearsal output is recorded without using the assignment database.
-- [ ] README, architecture, and runbook are included in the submitted repository.
-- [ ] Assignment form accurately discloses AI tools used, following its exact wording.
+- [x] `docker compose ps` shows database, API, and Nginx healthy. See `evidence/rebuild-and-compose.log`.
+- [x] `/health/live` and `/health/ready` return success through Nginx. See `evidence/runtime-smoke.log`.
+- [x] Product search and one product detail response pass. See `evidence/runtime-smoke.log`.
+- [x] Admin request without `X-Admin-Token` returns 401; authorized admin request returns 200. API tests also cover admin audit behavior.
+- [x] Authorized product creation succeeds in the isolated API smoke; audit behavior is covered by the API suite.
+- [x] Automated API tests cover price snapshots; isolated order creation decrements stock from 5 to 3.
+- [x] Exact retry with the same idempotency key returns the same order ID and does not decrement stock again.
+- [x] Reusing the key with a different payload returns 409.
+- [x] Insufficient stock is rejected without a partial order in the automated API suite.
+- [x] Cancellation restores stock and records an audit event in the automated API suite.
+- [x] Local Docker test target passed lint, formatting, all 10 tests, and dependency audits. See `evidence/expanded-test-build.log`.
+- [ ] GitHub-hosted CI run and `vX.Y.Z` registry publication; no remote/repository was configured and publishing was withheld.
+- [x] pip-audit passed. The Trivy CI-policy scan passed with zero actionable findings under the documented ignore-unfixed rule and scoped exception.
+- [ ] Strict Trivy high/critical gate: it reports 47 Debian package entries without a fix version. See the full scan report.
+- [x] `scripts/failure-recovery-check.ps1` detected proxy outage, restarted Nginx, and restored health/readiness. See `evidence/recovery-drill.log`.
+- [x] Backup and restore were exercised only in a disposable PostgreSQL tmpfs environment.
+- [x] Backup/restore rehearsal output is recorded; the assignment database and volume were not used.
+- [x] README, architecture, and runbook are present in the local repository.
+- [ ] Pipeline URL, registry digest, reviewer links, and screenshot evidence.
+- [ ] Swagger screenshot: browser-origin approval was declined; capture on the laptop or approve localhost access before submission.
+- [ ] Assignment form candidate details, AI attribution, declarations, and demo link.
