@@ -37,7 +37,7 @@ Prerequisites: Docker Desktop's Linux engine with Compose enabled and running, G
 Copy-Item .env.example .env
 ```
 
-Edit `.env` and replace `ADMIN_TOKEN` and `POSTGRES_PASSWORD` with private values before sharing the service. Start the app:
+Edit `.env` and set a unique random `ADMIN_TOKEN` and `POSTGRES_PASSWORD` before starting the stack. Compose intentionally stops with an error while either value is blank. If a value contains `$`, use single quotes in `.env` to prevent Compose interpolation. Keep `.env` private; only `.env.example` belongs in Git. Start the app:
 
 ```powershell
 docker compose up --build -d
@@ -47,6 +47,25 @@ Invoke-RestMethod http://localhost:8080/health/ready
 ```
 
 The first startup applies the checked-in Alembic migration. The API and database are reachable only inside the Compose network; Nginx is bound to loopback at `http://localhost:8080`. Open [`http://localhost:8080/docs`](http://localhost:8080/docs) for Swagger UI.
+
+### Configuration and ports
+
+| Variable | Required/default | Purpose |
+|---|---|---|
+| `POSTGRES_PASSWORD` | Required, no fallback | PostgreSQL password; keep private |
+| `ADMIN_TOKEN` | Required, no fallback | Protects admin routes; keep private |
+| `POSTGRES_DB` | `ecommerce` | Database name |
+| `POSTGRES_USER` | `ecommerce` | Database user |
+| `HTTP_PORT` | `8080` | Host loopback port for Nginx |
+| `IMAGE_NAME` | `ecommerce-product-order-api` | API image name for local or VM deployment |
+| `IMAGE_TAG` | `local` | API image version selected by Compose |
+| `LOG_LEVEL` | `INFO` | API log verbosity |
+
+| Listener | Exposure | Purpose |
+|---|---|---|
+| `127.0.0.1:${HTTP_PORT}` → Nginx `80` | Host loopback only | Client and Swagger access |
+| API `8000` | Compose network only | Nginx to FastAPI |
+| PostgreSQL `5432` | Compose network only | FastAPI to database |
 
 Load demo products once:
 
@@ -99,7 +118,10 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev]"
 ruff check app tests migrations
+ruff format --check app tests migrations
 pytest
+python -m pip install "pip-audit==2.10.1"
+pip-audit .
 ```
 
 The SQLite suite does not prove PostgreSQL row-lock behavior under concurrent requests. The deployed Compose stack uses PostgreSQL and should also be smoke-tested before submission.
@@ -114,7 +136,13 @@ docker build --target test -t ecommerce-product-order-api:test .
 
 Pull requests and pushes to `main` run lint, tests, and a container build. Push a semantic version tag such as `v1.0.0` to publish version, commit SHA, and `latest` tags to GitHub Container Registry. The first package may be private by default; grant the VM's GitHub account package pull access or make the package public if appropriate.
 
+The workflow also audits Python dependencies and scans the built image for high and critical OS or library vulnerabilities. Publishing permission is confined to the version-tag job. GitHub Actions must run in the target repository to produce a pipeline URL and published image digest.
+
 For a local VM deployment, follow the release steps in the runbook, set `IMAGE_NAME` and `IMAGE_TAG` in `.env`, then `docker compose pull api` and `docker compose up -d --no-build api`. Use the same procedure with the previous image tag for rollback. The included CI workflow does not SSH into an unconfigured VM or store deployment credentials.
+
+### Rollback procedure
+
+Before each release, record the current known-good `IMAGE_TAG` and create a database backup. If the new image fails its health check, set `IMAGE_TAG` back to the recorded value, then run `docker compose pull api`, `docker compose up -d --no-build api`, and verify `/health/ready`. For a compatible database schema, this rolls back the application image while preserving the database volume. Schema migrations are forward-only here: restore a database backup only after checking compatibility and confirming the target database, since restore replaces matching objects.
 
 ## Backup, restore, HTTPS, and recovery
 
@@ -139,7 +167,7 @@ These commands are prepared for you; no GitHub repository is created and no push
 
 ## Assignment integrity and AI disclosure
 
-This project was assembled with ChatGPT assistance. Review the code, run the demo, and make sure you can explain the design and tradeoffs in your own words. If the assignment form asks which AI tools were used, disclose ChatGPT accurately according to the form. No detector-evasion or authorship claim is made.
+This project was assembled with ChatGPT assistance. The demo catalog data is synthetic; no customer dataset is included. Review the code, run the demo, and make sure you can explain the design and tradeoffs in your own words. If the assignment form asks which AI tools were used, disclose ChatGPT accurately according to the form. No detector-evasion or authorship claim is made.
 
 ## Project files
 

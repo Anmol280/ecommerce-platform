@@ -56,14 +56,19 @@ try {
     if (Test-Path -LiteralPath $envPath) {
         foreach ($line in Get-Content -LiteralPath $envPath) {
             if ($line -match '^\s*([^#=]+)=(.*)$') {
-                $envValues[$matches[1].Trim()] = $matches[2].Trim()
+                $key = $matches[1].Trim()
+                $value = $matches[2].Trim()
+                if ($value.Length -ge 2 -and $value[0] -eq $value[$value.Length - 1] -and $value[0] -in @("'", '"')) {
+                    $value = $value.Substring(1, $value.Length - 2)
+                }
+                $envValues[$key] = $value
             }
         }
     }
 
     $adminToken = $envValues["ADMIN_TOKEN"]
     if (-not $adminToken) {
-        $adminToken = "local-admin-token"
+        throw "ADMIN_TOKEN is not set in .env; runtime verification cannot continue."
     }
 
     $live = Invoke-RestMethod -Uri "$base/health/live" -TimeoutSec 10

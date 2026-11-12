@@ -4,9 +4,27 @@ from __future__ import annotations
 
 import os
 
+from sqlalchemy.engine import URL
+
 
 def database_url() -> str:
-    return os.getenv("DATABASE_URL", "sqlite:///./local.db")
+    explicit_url = os.getenv("DATABASE_URL")
+    if explicit_url:
+        return explicit_url
+
+    postgres_host = os.getenv("POSTGRES_HOST")
+    if postgres_host:
+        url = URL.create(
+            "postgresql+psycopg",
+            username=os.getenv("POSTGRES_USER", "ecommerce"),
+            password=os.getenv("POSTGRES_PASSWORD", ""),
+            host=postgres_host,
+            port=int(os.getenv("POSTGRES_PORT", "5432")),
+            database=os.getenv("POSTGRES_DB", "ecommerce"),
+        )
+        return url.render_as_string(hide_password=False)
+
+    return "sqlite:///./local.db"
 
 
 def admin_token() -> str:

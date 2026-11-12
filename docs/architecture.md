@@ -25,7 +25,8 @@ The automated tests use SQLite for a fast self-contained run. SQLite does not im
 
 - Admin product changes, order status changes, and audit reads require `X-Admin-Token`.
 - Compare tokens with a constant-time comparison; never log the token.
-- Compose's local default token is for a private demo only. Replace it with a long random secret before using a VM.
+- Compose requires explicit non-empty `ADMIN_TOKEN` and `POSTGRES_PASSWORD` values; it has no fallback credentials.
+- Passwords are assembled into the PostgreSQL URL through SQLAlchemy's URL builder, so punctuation in a secret is encoded correctly.
 - API/database ports stay inside Compose; Nginx is the only published service.
 - The API image runs as a non-root user and reads configuration from environment variables.
 - TLS certificates and deployment secrets are intentionally external to the repository.

@@ -46,6 +46,19 @@ docker compose up -d api
 
 Do not run `docker compose down -v` during routine recovery: `-v` deletes the persistent database volume.
 
+### Incident response and recovery drill
+
+1. Check `docker compose ps` and the liveness/readiness endpoints to identify whether the proxy, API, or database is unhealthy.
+2. Inspect only the affected service's recent logs with `docker compose logs --tail 150 <service>`. Request logs include request IDs; never paste `.env` contents or admin headers into tickets or screenshots.
+3. Restore service using `docker compose up -d <service>` after correcting its configuration or dependency. Confirm `/health/live`, `/health/ready`, and one catalog request.
+4. Record the failure symptom, recovery action, and health-check result. For an application regression, use the image rollback steps below. For suspected data damage, stop writes, preserve the current database volume, verify the backup file, and follow the restore procedure only against the intended database.
+
+The automated proxy recovery drill stops only Nginx, verifies that the external health request fails while the API remains running, restarts Nginx in a `finally` path, and verifies liveness/readiness recovery. It does not touch the database or its volume:
+
+```powershell
+.\scripts\failure-recovery-check.ps1
+```
+
 ## Backup and restore
 
 Back up before a release or database maintenance:
@@ -63,6 +76,8 @@ Invoke-RestMethod http://localhost:8080/health/ready
 ```
 
 Copy backups off the VM and protect them as sensitive data. The example does not implement automatic retention or off-site scheduling.
+
+The backup and restore commands should be rehearsed against a disposable database before relying on them for production data. The verification report records whether that rehearsal ran; no live-database restore is part of this assignment check.
 
 ## Release and rollback
 

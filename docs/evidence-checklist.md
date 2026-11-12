@@ -11,6 +11,9 @@
 - [ ] Insufficient stock returns 409 and leaves stock unchanged.
 - [ ] Cancellation restores stock and records an audit event.
 - [ ] CI run is green for lint and tests; a `vX.Y.Z` tag publishes the versioned image.
+- [ ] Python dependency audit and built-image vulnerability scan pass in CI.
+- [ ] `scripts/failure-recovery-check.ps1` detects the proxy outage, restarts Nginx, and restores health/readiness.
 - [ ] A backup file is created and a restore is demonstrated only in a disposable environment.
+- [ ] Backup and restore rehearsal output is recorded without using the assignment database.
 - [ ] README, architecture, and runbook are included in the submitted repository.
 - [ ] Assignment form accurately discloses AI tools used, following its exact wording.

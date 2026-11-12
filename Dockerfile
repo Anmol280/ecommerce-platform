@@ -27,9 +27,13 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-
 FROM runtime AS test
 USER root
 RUN pip install --no-cache-dir ".[dev]"
+RUN pip install --no-cache-dir "pip-audit==2.10.1"
 COPY tests ./tests
 USER app:app
-RUN ruff check app tests migrations && pytest
+RUN ruff check app tests migrations \
+    && ruff format --check app tests migrations \
+    && pytest \
+    && pip-audit .
 
 # Keep the production image as the default Docker build target.
 FROM runtime AS final

@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-ecommerce}
       POSTGRES_USER: ${POSTGRES_USER:-ecommerce}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-this-local-password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -20,8 +20,12 @@ services:
     build: .
     image: ${IMAGE_NAME:-ecommerce-product-order-api}:${IMAGE_TAG:-local}
     environment:
-      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-ecommerce}:${POSTGRES_PASSWORD:-change-this-local-password}@db:5432/${POSTGRES_DB:-ecommerce}
-      ADMIN_TOKEN: ${ADMIN_TOKEN:-local-admin-token}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-ecommerce}
+      POSTGRES_USER: ${POSTGRES_USER:-ecommerce}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?Set ADMIN_TOKEN in .env}
       SERVICE_NAME: ecommerce-product-order-api
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     depends_on:

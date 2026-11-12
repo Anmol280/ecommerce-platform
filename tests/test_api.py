@@ -3,7 +3,9 @@ from __future__ import annotations
 from decimal import Decimal
 
 from fastapi.testclient import TestClient
+from sqlalchemy.engine import make_url
 
+from app.config import database_url
 from tests.conftest import create_product
 
 
@@ -97,6 +99,26 @@ def test_empty_admin_configuration_never_authenticates(
     monkeypatch.setenv("ADMIN_TOKEN", "")
     response = client.get("/api/v1/admin/audit-events", headers={"X-Admin-Token": ""})
     assert response.status_code == 401
+
+
+def test_database_url_encodes_password_with_reserved_characters(monkeypatch) -> None:
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.setenv("POSTGRES_HOST", "db")
+    monkeypatch.setenv("POSTGRES_USER", "ecommerce")
+    monkeypatch.setenv("POSTGRES_PASSWORD", "p@ss:/word?#%")
+    monkeypatch.setenv("POSTGRES_PORT", "5432")
+    monkeypatch.setenv("POSTGRES_DB", "ecommerce")
+
+    parsed = make_url(database_url())
+    assert parsed.password == "p@ss:/word?#%"
+    assert parsed.host == "db"
+    assert parsed.database == "ecommerce"
+
+
+def test_explicit_database_url_takes_precedence(monkeypatch) -> None:
+    monkeypatch.setenv("DATABASE_URL", "sqlite:///./override.db")
+    monkeypatch.setenv("POSTGRES_HOST", "db")
+    assert database_url() == "sqlite:///./override.db"
 
 
 def test_validation_rejects_invalid_product_and_order(
