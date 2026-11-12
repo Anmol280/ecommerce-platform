@@ -57,7 +57,7 @@ Complete means the requested capability exists and was verified locally where pr
 |---|---|---|
 | Candidate full name, registration number and university email. | Missing | Candidate-specific fields must be supplied by the candidate in the official form. |
 | Internship role and exact assigned project title. | Partially Complete | The assignment states DevOps & Cloud Engineering and Cloud Deployment & CI/CD – E-Commerce Platform; the candidate still needs to enter and confirm these in the form. |
-| Repository URL, primary branch, final commit ID and reviewer access if private. | Partially Complete | Local branch is main and the source project exists. There is no remote or reviewer access. Record the final local commit after review, then add the chosen repository URL. |
+| Repository URL, primary branch, final commit ID and reviewer access if private. | Partially Complete | The reviewed changes are committed locally on main; use the current HEAD SHA in the form. There is no remote or reviewer access yet. |
 | Video link or local-only demo declaration. | Missing | Record and link the demo, or use the form's local-only option if allowed. |
 | README/report and architecture/schema diagram links. | Partially Complete | Files exist locally; reviewer-accessible links depend on repository publication. |
 | Technology, setup notes and known limitations. | Complete | README, architecture and verification report describe the stack, setup and limits. |
@@ -84,7 +84,7 @@ Complete means the requested capability exists and was verified locally where pr
 ## Candidate actions still required
 
 1. Rotate the database password and admin token that were exposed earlier. Do this privately in the local .env and update any intended deployment secret store before sharing or recording; no credential was changed here.
-2. Choose the GitHub account, repository name and visibility. After reviewing the local changes, add that remote and push only when ready. No repository or remote was created and nothing was published.
+2. Choose the GitHub account, repository name and visibility. Add that specific remote and publish the reviewed local branch only when ready. No repository or remote was created and nothing was published.
 3. Run the workflow in the chosen GitHub repository, then record its URL, published version tag and registry digest. Keep the local image ID distinct from a registry digest.
 4. Capture the Swagger/local deployment screenshot after granting the browser origin permission, or capture it directly on the laptop. The browser approval gate declined access during this run; no workaround was attempted.
 5. Record the 3–5 minute demo and complete candidate-specific form fields, declarations and AI attribution. Prepare for the walkthrough and live debugging task.

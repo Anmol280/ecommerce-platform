@@ -6,6 +6,7 @@ Updated 2026-11-13. This report continues the existing project at commit 61d2047
 
 - The existing project folder was accessible. Docker Engine Server 28.5.2 and Compose 2.40.3 were reachable.
 - The project remains on local branch main. No Git remote is configured; no repository was created and no GitHub content was published.
+- The verification work is saved in a local commit on main; the final HEAD SHA is reported in the completion message.
 - The existing PostgreSQL volume, ecommerce-platform_postgres_data, was inspected before and after the API rebuild and kept unchanged. No database reset, volume removal, or restore was run against the assignment database. The API's normal startup migration check remained at head.
 - Order creation, replay and input-validation writes used a separate API container with a SQLite database in tmpfs. Backup/restore used a separate PostgreSQL container with its data directory verified as tmpfs. The outage drill stopped/restarted only the Nginx service.
 - Secret values were not read into evidence output, printed, or committed. .env remains ignored and untracked. Credentials exposed in earlier conversation should be rotated privately by the candidate before sharing or recording; no credential was changed here.
@@ -51,6 +52,7 @@ Updated 2026-11-13. This report continues the existing project at commit 61d2047
 - recovery-drill.log - reverse-proxy outage and recovery output.
 - backup-restore-rehearsal.log - isolated PostgreSQL tmpfs backup/restore output.
 - ci-workflow-lint.log - actionlint version and successful workflow lint.
+- precommit-local-status.log - Docker/Compose state, ignored/untracked .env, and no-remote checks captured before the local commit.
 - trivy-image-scan-strict.json and .log - strict high/critical scan; the command returned 1 because findings remain.
 - trivy-image-scan-full.json and .log - complete high/critical finding set for the final image.
 - trivy-image-scan-ci-policy.json and .log - CI-policy scan result.
