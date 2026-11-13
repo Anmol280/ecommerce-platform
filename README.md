@@ -138,7 +138,7 @@ Pull requests and pushes to `main` run lint, tests, and a container build. Push 
 
 The workflow also audits Python dependencies and scans the built image for high and critical OS or library vulnerabilities. Publishing permission is confined to the version-tag job. GitHub Actions must run in the target repository to produce a pipeline URL and published image digest.
 
-The Trivy policy ignores findings without a vendor fix and contains one version-specific, expiring exception for a setuptools 70.3.0 base-layer record that is absent from the final runtime filesystem. See `.trivyignore.yaml` and the full strict scan in `docs/verification-report.md`; the full scan still reports unfixed Debian findings.
+The configured CI Trivy policy ignores findings without a vendor fix and contains one version-specific, expiring exception for a setuptools 70.3.0 base-layer record that is absent from the final runtime filesystem. The fresh strict scan is a separate full scan with unfixed findings included: it returned exit code 1 with 208 findings, including 47 HIGH Debian runtime findings without a fixed version listed. See the complete classification in `docs/verification-report.md` and `docs/evidence/trivy-image-scan-rebuilt-classification.csv`.
 
 For a local VM deployment, follow the release steps in the runbook, set `IMAGE_NAME` and `IMAGE_TAG` in `.env`, then `docker compose pull api` and `docker compose up -d --no-build api`. Use the same procedure with the previous image tag for rollback. The included CI workflow does not SSH into an unconfigured VM or store deployment credentials.
 
@@ -154,7 +154,7 @@ PowerShell helpers are in `scripts/backup.ps1` and `scripts/restore.ps1`. Restor
 
 The no-cache Docker test target passed Ruff lint/format, all 10 API tests, and both pip-audit checks. The production API image rebuilt and the Compose API, PostgreSQL, and Nginx services reported healthy. Live and isolated smoke checks, the Nginx recovery drill, the tmpfs PostgreSQL backup/restore rehearsal, and actionlint workflow validation passed. Their output is saved under `docs/evidence/`.
 
-The strict Trivy high/critical gate remains failed: 47 Debian package entries have no fix version, and the scanner reports one stale setuptools record from the base image even though setuptools is removed from the final runtime. The configured CI policy scan passed with zero actionable findings after the documented exception. No GitHub-hosted workflow, registry image, public HTTPS endpoint, screenshot, or demo recording exists yet. See `docs/assignment-compliance-checklist.md` and `docs/verification-report.md` before submission.
+The fresh strict Trivy scan against the rebuilt API image failed its high/critical gate with exit code 1 and 208 findings: 48 HIGH, including 47 Debian runtime entries with no fixed version listed and one setuptools layer-history finding with a fix listed. The full scan includes unfixed findings; see the JSON and CSV evidence linked from `docs/verification-report.md`. The earlier local CI-policy scan result is separate and does not change this strict-scan failure. No GitHub-hosted workflow, registry image, public HTTPS endpoint, screenshot, or demo recording exists yet. See `docs/assignment-compliance-checklist.md` and `docs/verification-report.md` before submission.
 
 ## GitHub submission commands
 

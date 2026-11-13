@@ -1,0 +1,27 @@
+2026-11-13T09:12:58Z	WARN	'--vuln-type' is deprecated. Use '--pkg-types' instead.
+2026-11-13T09:12:58Z	INFO	[vulndb] Need to update DB
+2026-11-13T09:12:58Z	INFO	[vulndb] Downloading vulnerability DB...
+2026-11-13T09:12:58Z	INFO	[vulndb] Downloading artifact...	repo="ghcr.io/aquasecurity/trivy-db:2"
+2026-11-13T09:14:26Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-11-13T09:14:28Z	WARN	Third-party SBOM may lead to inaccurate vulnerability detection
+2026-11-13T09:14:28Z	WARN	Recommend using Trivy to generate SBOMs
+2026-11-13T09:14:28Z	INFO	[python] Licenses acquired from one or more METADATA files may be subject to additional terms. Use `--debug` flag to see all affected packages.
+2026-11-13T09:14:29Z	INFO	Detected OS	family="debian" version="13.7"
+2026-11-13T09:14:29Z	INFO	[debian] Detecting vulnerabilities...	os_version="13" pkg_num=87
+2026-11-13T09:14:29Z	INFO	Number of language-specific files	num=1
+2026-11-13T09:14:29Z	INFO	[python-pkg] Detecting vulnerabilities...
+2026-11-13T09:14:29Z	WARN	Using severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.76/guide/scanner/vulnerability#severity-selection for details.
+
+STRICT SCAN SUMMARY
+Trivy version: 0.76.2
+Image reference: ecommerce-product-order-api@sha256:a5f8401104ed2268a10ba8e07e494e297627bd1b69c020955efb61a68c337081
+Image ID: sha256:a5f8401104ed2268a10ba8e07e494e297627bd1b69c020955efb61a68c337081
+Vulnerability DB version: 2
+Vulnerability DB updated at: 2026-11-13T07:00:07.938173847Z
+Vulnerability DB downloaded at: 2026-11-13T09:14:26.406126055Z
+Scan: vulnerabilities; operating system and library packages; all severities; no ignore-unfixed; exit-code threshold 1
+Exit code: 1 (findings present)
+Findings: 208 total; CRITICAL 0; HIGH 48; MEDIUM 90; LOW 66; UNKNOWN 4
+Runtime package findings: 205 Debian entries, all package names and versions present in the final image
+Layer-history findings: 3 setuptools entries, absent from the final runtime filesystem
+Fixes listed: 3 entries; no fix listed by Trivy: 205 entries

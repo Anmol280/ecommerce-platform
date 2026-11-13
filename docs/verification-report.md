@@ -1,6 +1,6 @@
 # Local verification report
 
-Updated 2026-11-13. This pass continues the existing project from commit `9705b7a03e3a6345915b5c09e02cd7d4020a5146`. The assignment source reviewed earlier is `07_Cloud_Deployment_and_CI_CD_E_Commerce_Platform.docx`.
+Updated 2026-11-13. This pass continues the existing project from commit `49aa6465bb4731fa651d93bf54f0aac9d3a7557a`. The assignment source reviewed earlier is `07_Cloud_Deployment_and_CI_CD_E_Commerce_Platform.docx`.
 
 ## Completed in this pass
 
@@ -9,7 +9,7 @@ Updated 2026-11-13. This pass continues the existing project from commit `9705b7
 - Confirmed `.env` remains ignored and untracked. No secret values were printed or added to evidence.
 - Ran the fresh no-cache Docker test target, live runtime verification, an isolated SQLite API/order test, an isolated PostgreSQL tmpfs backup/restore rehearsal, and the Nginx failure/recovery drill.
 - Reviewed all 16 Gitleaks candidates from the current project directory and all Git history through this commit. All 16 are false positives in generated Trivy JSON evidence; the current directory and history findings overlap exactly by path, line, and rule. No candidate is in application/configuration files or `.env`.
-- Refreshed the completed Trivy scan before rebuilding the production image. It reported 48 HIGH and 0 CRITICAL findings. A post-rebuild strict scan was attempted, but Trivy could not finish downloading its 133.47 MiB vulnerability database within the five-minute timeout. The rebuilt image's versions for all affected Debian packages matched the completed scan; setuptools remained absent from the final runtime. This comparison does not replace a completed post-rebuild Trivy scan.
+- Ran a fresh strict Trivy 0.76.2 scan against the rebuilt API image by immutable digest, using vulnerability DB version 2 updated 2026-11-13. The scan included all severities, did not ignore unfixed findings, and returned exit code 1. The complete JSON report and a per-finding runtime/fix classification CSV are saved in `docs/evidence/`.
 
 ## Passed verification
 
@@ -40,20 +40,33 @@ This result concerns the 16 Gitleaks candidates only. The database password and 
 
 ### Container vulnerabilities
 
-The last completed Trivy scan before the production-image rebuild found 48 HIGH and 0 CRITICAL entries across 12 CVE IDs. Trivy listed no fixed version for 47 Debian package entries across 11 CVE IDs. Each affected Debian package is present in the rebuilt runtime image, and the rebuilt image's package versions match the completed scan:
+The rebuilt production API image was scanned as `ecommerce-product-order-api@sha256:a5f8401104ed2268a10ba8e07e494e297627bd1b69c020955efb61a68c337081`. Its Docker image ID and the running API container's image ID both match `sha256:a5f8401104ed2268a10ba8e07e494e297627bd1b69c020955efb61a68c337081`.
 
-| CVE group | Package entries |
-|---|---|
-| CVE-2026-76642, CVE-2026-78408, CVE-2026-78409, CVE-2026-78410 | `bsdutils`, `libblkid1`, `liblastlog2-2`, `libmount1`, `libsmartcols1`, `libuuid1`, `login`, `mount`, `util-linux` (9 entries for each CVE) |
-| CVE-2026-54369 | `libacl1` |
-| CVE-2025-69720 | `libncursesw6`, `libtinfo6`, `ncurses-base`, `ncurses-bin` |
-| CVE-2026-119373, CVE-2026-119374, CVE-2026-119379 | `libsqlite3-0` (one entry for each CVE) |
-| CVE-2026-16742 | `libsystemd0`, `libudev1` |
-| CVE-2026-9538 | `perl-base` |
+Trivy 0.76.2 used vulnerability DB v2, updated at `2026-11-13T07:00:07Z` and downloaded at `2026-11-13T09:14:26Z`. The scan included OS and library vulnerabilities at all severities, applied no `ignore-unfixed` filter, and used exit code 1 as the failure threshold. It returned exit code **1 (fail)** with 208 findings across 94 advisory IDs:
 
-The remaining entry is `CVE-2025-47273` for `setuptools@70.3.0`, with a Trivy fixed version of `78.1.1`. Trivy reports the package in image-layer history, but the final runtime has neither an importable setuptools module nor distribution metadata after the Dockerfile's upgrade/uninstall step. The existing `.trivyignore.yaml` exception is limited to this exact PURL/version and expires `2026-12-13`; it does not broadly suppress the Debian findings. The prior CI-policy scan passed under its `ignore-unfixed` rule plus this exception, but that policy scan was not rerun on the rebuilt image.
+| Severity | Findings | Present in final runtime | Layer-history only | Fix version listed |
+|---|---:|---:|---:|---:|
+| CRITICAL | 0 | 0 | 0 | 0 |
+| HIGH | 48 | 47 | 1 | 1 |
+| MEDIUM | 90 | 89 | 1 | 1 |
+| LOW | 66 | 65 | 1 | 1 |
+| UNKNOWN | 4 | 4 | 0 | 0 |
+| **Total** | **208** | **205** | **3** | **3** |
 
-The post-rebuild strict Trivy run did not finish: its database download timed out after five minutes, before a report was created. Therefore a completed strict scan of the rebuilt image is still pending. The previous completed report is retained, and the package-version comparison is documented as supporting evidence only, not as a replacement scan.
+The 205 Debian findings affect 42 distinct OS packages. Every named package and installed version is present in the final runtime image. Trivy listed no fixed version for these entries: 47 HIGH, 89 MEDIUM, 65 LOW, and 4 UNKNOWN. “No fix listed” means the current Trivy database supplied no fixed version; it does not establish that Debian has no patch or mitigation. The full affected-package and advisory list is in `trivy-image-scan-rebuilt-classification.csv`.
+
+The other three findings refer to `setuptools@70.3.0` in image-layer history. The final runtime has no importable setuptools module or distribution metadata. Trivy lists fixed versions for all three: HIGH `CVE-2025-47273` at `78.1.1`, MEDIUM `CVE-2026-59890` at `83.0.0`, and LOW `GHSA-xmj3-9gf7-h52w` at `84.1.0`. The finding layer is the Dockerfile layer that upgrades build tooling and uninstalls setuptools. The existing `.trivyignore.yaml` exception remains limited to the exact `CVE-2025-47273` PURL/version and expires `2026-12-13`; no suppression was added in this pass.
+
+### Risk and mitigation options
+
+The 47 HIGH findings are in OS packages installed in the runtime image. Package presence does not prove that a vulnerable code path is reachable or exploitable, but the affected libraries and utilities are available to processes in the container. The scan is package-based and did not perform exploitability or reachability analysis.
+
+- Check Debian security advisories and refreshed Trivy data for vendor backports; rebuild and rescan when fixed versions become available.
+- Consider moving to a newer supported Python/Debian base digest. This can change libc, OpenSSL, SQLite, and other system behavior, so rebuild the image and rerun API, database, and deployment checks before adoption.
+- Consider reducing runtime packages or using a smaller runtime stage. This can remove tools or shared libraries the service or diagnostics rely on, so verify startup, TLS certificates, locale/timezone, migrations, and troubleshooting workflows.
+- Until fixes are available, keep the API on its private Compose network, retain the loopback-only Nginx binding, run as the existing non-root user, restrict access, and monitor Debian advisories. These controls reduce exposure but do not make the strict scan pass.
+
+No base image, dependency, application code, credential, or database change was made for this scan.
 
 ## Evidence files
 
@@ -65,17 +78,18 @@ The post-rebuild strict Trivy run did not finish: its database download timed ou
 - `docs/evidence/backup-restore-rehearsal-final.log` — isolated PostgreSQL tmpfs backup/restore.
 - `docs/security-findings-report.md` — per-finding redacted classifications and recommendations for all 16 candidates.
 - `docs/evidence/gitleaks-history-redacted.log` and `docs/evidence/gitleaks-worktree-redacted.log` — earlier redacted scanner summaries. The final safe metadata review is recorded in the security findings report.
+- `docs/evidence/trivy-image-scan-rebuilt-strict.json` and `.log` — complete scan against the rebuilt image digest, with strict exit code and updated vulnerability database.
+- `docs/evidence/trivy-image-scan-rebuilt-classification.csv` — all 208 findings classified by severity, package, runtime presence, and fix availability.
 - `docs/evidence/trivy-image-scan-before-api-rebuild.json` and `.log` — completed 48-HIGH scan from immediately before the API image rebuild. This report command recorded findings but did not enable Trivy's non-zero exit-code gate.
-- `docs/evidence/trivy-image-scan-final-after-rebuild.log` — failed post-rebuild scan log showing the vulnerability-database download timeout; no post-rebuild JSON report was created.
+- `docs/evidence/trivy-image-scan-final-after-rebuild.log` — earlier post-rebuild database-download timeout, superseded by the completed strict scan in `trivy-image-scan-rebuilt-strict.json` and `.log`.
 - Earlier CI-policy, strict-scan, and workflow-lint evidence remains in `docs/evidence/` and is identified by its original filenames.
 
 ## Remaining blockers
 
-1. Rotate the previously exposed database password and admin token through an approved local process, then recheck database authentication, admin authentication, `.env` ignore status, and data preservation.
-2. Rotate the previously exposed database password and admin token through an approved process. They were not found in tracked files or history by Gitleaks, but their prior exposure remains a security concern.
-3. Run a completed strict Trivy scan on the rebuilt image when the vulnerability database can be downloaded. Address or explicitly risk-accept the 47 runtime Debian findings; review the narrow setuptools exception before its expiry.
-4. Choose a GitHub account, repository name, and visibility. No remote, repository, push, tag, or image publication has been created.
-5. Run hosted CI and capture its URL and registry digest after publication is approved. The local image ID is not a registry digest.
-6. Capture the Swagger/deployment screenshot and complete the remaining assignment demo/submission artifacts. The earlier browser attempt was blocked for localhost access; no workaround was attempted.
+1. Rotate the previously exposed database password and admin token through an approved process, then recheck database authentication, admin authentication, `.env` ignore status, and data preservation.
+2. Resolve or formally risk-accept the 47 HIGH runtime Debian findings. The strict image scan is complete and fails; refresh it after base/package changes or vendor fixes. Review the narrow setuptools exception before `2026-12-13`.
+3. Choose a GitHub account, repository name, and visibility before any later publication. No remote, repository, push, tag, or image publication has been created.
+4. Run hosted CI and capture its URL and registry digest after publication is approved. The local image ID is not a registry digest.
+5. Capture the Swagger/deployment screenshot and complete the remaining assignment demo/submission artifacts. The earlier browser attempt was blocked for localhost access; no workaround was attempted.
 
-**Private staging status: repository content can proceed to private staging with `.env` kept excluded.** No repository or remote was created in this task. **Public publication status: not ready.** The previously exposed live credentials remain unrotated, and the rebuilt image still needs a completed strict Trivy scan with the 47 runtime Debian findings resolved or formally accepted.
+**Private staging status: repository content can proceed to private staging with `.env` kept excluded.** No repository or remote was created in this task. **Public publication status: not ready.** The previously exposed live credentials remain unrotated, and the rebuilt image's strict scan fails with 47 HIGH runtime findings lacking a fix version in the current Trivy database.
