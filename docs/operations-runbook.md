@@ -93,6 +93,16 @@ The disposable rehearsal has passed. It creates a unique Compose project and a P
 
 The recorded output is in `docs/evidence/backup-restore-rehearsal.log`. This rehearsal validates the helper scripts, but it is not a restore of production data. Continue to verify the dump and target database before any real restore.
 
+## Container vulnerability status and temporary risk acceptance
+
+As of 2026-11-13, the strict Trivy scan of the production API image exits 1. It reports 47 HIGH Debian findings in the final runtime, plus one HIGH setuptools finding in image-layer history; the full scan has 208 findings. The findings, package groups, and complete JSON are in `docs/verification-report.md` and `docs/evidence/`.
+
+The official `python:3.12-slim-trixie` candidate was built separately and scanned with a fresh Trivy database. Its base digest matched the existing Python base, its final OS package inventory matched all 87 packages in the current image, and all 47 HIGH runtime finding tuples were identical. The candidate passed the 10-test API suite, non-root check, and read-only health, readiness/PostgreSQL, and product-list checks. It was not adopted. The current Dockerfile, production image, running services, and database were left unchanged.
+
+Temporary acceptance is limited to local/private assignment preparation through **2026-12-13**. It is not an assertion that the image is vulnerability-free or secure, and it does not approve public production exposure. Until review, retain the non-root API user, do not enable privileged mode or add Linux capabilities, keep PostgreSQL private and the API behind the loopback-bound reverse proxy, and avoid introducing untrusted local files or shell/utility inputs into the API workflow. These controls reduce exposure; they do not make the strict scan pass.
+
+Review earlier if Debian publishes a security update for any listed Trixie package, Trivy adds or changes a relevant advisory, or before public release. Otherwise, review by 2026-12-13: check Debian security status and the official Python 3.12 Trixie digest, rebuild a separate candidate, run the full strict Trivy scan, compare findings, and repeat runtime checks before requesting approval to replace the production image. Do not suppress findings to satisfy the scan.
+
 ## Release and rollback
 
 After the version-tag workflow publishes `ghcr.io/OWNER/REPOSITORY:1.0.0`, set these values in the deployment `.env`:

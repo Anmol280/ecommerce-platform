@@ -1,6 +1,6 @@
 # Local verification report
 
-Updated 2026-11-13. This pass continues the existing project from commit `49aa6465bb4731fa651d93bf54f0aac9d3a7557a`. The assignment source reviewed earlier is `07_Cloud_Deployment_and_CI_CD_E_Commerce_Platform.docx`.
+Updated 2026-11-13. This pass continues the existing project from commit `3439cb8a663425e912b55341f13736c4c3c36c17`. The assignment source reviewed earlier is `07_Cloud_Deployment_and_CI_CD_E_Commerce_Platform.docx`.
 
 ## Completed in this pass
 
@@ -10,6 +10,7 @@ Updated 2026-11-13. This pass continues the existing project from commit `49aa64
 - Ran the fresh no-cache Docker test target, live runtime verification, an isolated SQLite API/order test, an isolated PostgreSQL tmpfs backup/restore rehearsal, and the Nginx failure/recovery drill.
 - Reviewed all 16 Gitleaks candidates from the current project directory and all Git history through this commit. All 16 are false positives in generated Trivy JSON evidence; the current directory and history findings overlap exactly by path, line, and rule. No candidate is in application/configuration files or `.env`.
 - Ran a fresh strict Trivy 0.76.2 scan against the rebuilt API image by immutable digest, using vulnerability DB version 2 updated 2026-11-13. The scan included all severities, did not ignore unfixed findings, and returned exit code 1. The complete JSON report and a per-finding runtime/fix classification CSV are saved in `docs/evidence/`.
+- Built and tested a separate official `python:3.12-slim-trixie` candidate without changing the project Dockerfile or current services. The official base digest and all 87 final OS packages matched the current image; the candidate strict scan returned the same counts and the exact same 47 HIGH runtime findings. The candidate passed the existing 10-test suite and read-only live checks, but was not adopted.
 
 ## Passed verification
 
@@ -55,18 +56,33 @@ Trivy 0.76.2 used vulnerability DB v2, updated at `2026-11-13T07:00:07Z` and dow
 
 The 205 Debian findings affect 42 distinct OS packages. Every named package and installed version is present in the final runtime image. Trivy listed no fixed version for these entries: 47 HIGH, 89 MEDIUM, 65 LOW, and 4 UNKNOWN. “No fix listed” means the current Trivy database supplied no fixed version; it does not establish that Debian has no patch or mitigation. The full affected-package and advisory list is in `trivy-image-scan-rebuilt-classification.csv`.
 
+The 47 HIGH runtime entries group as follows:
+
+| Advisory group | Affected runtime package entries | Count |
+|---|---|---:|
+| `CVE-2026-76642`, `CVE-2026-78408`, `CVE-2026-78409`, `CVE-2026-78410` | Each advisory maps to `bsdutils`, `libblkid1`, `liblastlog2-2`, `libmount1`, `libsmartcols1`, `libuuid1`, `login`, `mount`, and `util-linux` (versions `2.41.5-0+deb13u1` family; `login` is `1:4.16.0-2+really2.41.5-0+deb13u1`). | 36 |
+| `CVE-2026-54369` | `libacl1` `2.3.2-2+b1` | 1 |
+| `CVE-2025-69720` | `libncursesw6`, `libtinfo6`, `ncurses-base`, `ncurses-bin` `6.5+20250216-2` | 4 |
+| `CVE-2026-119373`, `CVE-2026-119374`, `CVE-2026-119379` | `libsqlite3-0` `3.46.1-7+deb13u2` | 3 |
+| `CVE-2026-16742` | `libsystemd0`, `libudev1` `257.13-1~deb13u1` | 2 |
+| `CVE-2026-9538` | `perl-base` `5.40.1-6+deb13u1` | 1 |
+| **Total** | **18 package names across 11 advisory IDs** | **47** |
+
 The other three findings refer to `setuptools@70.3.0` in image-layer history. The final runtime has no importable setuptools module or distribution metadata. Trivy lists fixed versions for all three: HIGH `CVE-2025-47273` at `78.1.1`, MEDIUM `CVE-2026-59890` at `83.0.0`, and LOW `GHSA-xmj3-9gf7-h52w` at `84.1.0`. The finding layer is the Dockerfile layer that upgrades build tooling and uninstalls setuptools. The existing `.trivyignore.yaml` exception remains limited to the exact `CVE-2025-47273` PURL/version and expires `2026-12-13`; no suppression was added in this pass.
 
 ### Risk and mitigation options
 
-The 47 HIGH findings are in OS packages installed in the runtime image. Package presence does not prove that a vulnerable code path is reachable or exploitable, but the affected libraries and utilities are available to processes in the container. The scan is package-based and did not perform exploitability or reachability analysis.
+### Official Slim Trixie candidate comparison and temporary acceptance
 
-- Check Debian security advisories and refreshed Trivy data for vendor backports; rebuild and rescan when fixed versions become available.
-- Consider moving to a newer supported Python/Debian base digest. This can change libc, OpenSSL, SQLite, and other system behavior, so rebuild the image and rerun API, database, and deployment checks before adoption.
-- Consider reducing runtime packages or using a smaller runtime stage. This can remove tools or shared libraries the service or diagnostics rely on, so verify startup, TLS certificates, locale/timezone, migrations, and troubleshooting workflows.
-- Until fixes are available, keep the API on its private Compose network, retain the loopback-only Nginx binding, run as the existing non-root user, restrict access, and monitor Debian advisories. These controls reduce exposure but do not make the strict scan pass.
+The tested official `python:3.12-slim-trixie` tag resolves to the exact base digest already pinned in the Dockerfile: `sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b`. The separately tagged candidate image is `ecommerce-product-order-api:trixie-candidate`, image ID `sha256:a27ccd04076979aab1f98a59cb3e8c431c91f3ae401ca029134df1b2f6a65f6c`. Both current and candidate final images have the same 87 OS package entries. Candidate Trivy returned exit code 1 with 208 findings (48 HIGH, 90 MEDIUM, 66 LOW, 4 UNKNOWN); the 47 HIGH runtime tuples match the baseline exactly. The candidate was not adopted.
 
-No base image, dependency, application code, credential, or database change was made for this scan.
+Candidate compatibility checks passed: Ruff and format checks, all 10 API tests, both pip-audit checks, non-root UID 999, liveness 200, readiness/PostgreSQL 200, and product-list 200. A disposable Compose one-off container used read-only requests and bypassed the migration entrypoint; the existing API, PostgreSQL, and Nginx containers remained healthy. The assignment database was not written.
+
+The runtime package findings remain real package matches; Trivy did not test exploitability or code-path reachability. The container runs as non-root UID 999 without privileged mode or added capabilities. The API is exposed through the loopback-bound proxy, PostgreSQL stays private, `systemd-homed` is absent, and production Compose uses PostgreSQL. The image still contains the affected system libraries/utilities; the SQLite library also supports the project's existing SQLite configuration and tests. These controls reduce exposure but do not make the strict scan pass or eliminate residual risk.
+
+**Temporary risk acceptance:** for local/private assignment preparation only, accept the residual runtime package risk through **2026-12-13** while retaining the controls above. This is not a statement that the image is vulnerability-free or secure, and it is not approval for public production exposure. Review earlier if Debian publishes a Trixie fix, Trivy changes an applicable advisory, or before any public release. At the review date, check Debian advisories and the official Python Trixie digest, build and strictly scan a separate candidate, compare results, and rerun compatibility checks before asking approval to replace the current image. Do not suppress findings to achieve a pass.
+
+No permanent base image, dependency, application code, credential, Docker Compose, or database change was made.
 
 ## Evidence files
 
@@ -80,6 +96,7 @@ No base image, dependency, application code, credential, or database change was 
 - `docs/evidence/gitleaks-history-redacted.log` and `docs/evidence/gitleaks-worktree-redacted.log` — earlier redacted scanner summaries. The final safe metadata review is recorded in the security findings report.
 - `docs/evidence/trivy-image-scan-rebuilt-strict.json` and `.log` — complete scan against the rebuilt image digest, with strict exit code and updated vulnerability database.
 - `docs/evidence/trivy-image-scan-rebuilt-classification.csv` — all 208 findings classified by severity, package, runtime presence, and fix availability.
+- `docs/evidence/trivy-image-scan-trixie-candidate.json` and `.log` — complete candidate scan and redacted summary; strict exit 1, same 208 findings, identical 47 HIGH runtime entries.
 - `docs/evidence/trivy-image-scan-before-api-rebuild.json` and `.log` — completed 48-HIGH scan from immediately before the API image rebuild. This report command recorded findings but did not enable Trivy's non-zero exit-code gate.
 - `docs/evidence/trivy-image-scan-final-after-rebuild.log` — earlier post-rebuild database-download timeout, superseded by the completed strict scan in `trivy-image-scan-rebuilt-strict.json` and `.log`.
 - Earlier CI-policy, strict-scan, and workflow-lint evidence remains in `docs/evidence/` and is identified by its original filenames.
@@ -87,9 +104,9 @@ No base image, dependency, application code, credential, or database change was 
 ## Remaining blockers
 
 1. Rotate the previously exposed database password and admin token through an approved process, then recheck database authentication, admin authentication, `.env` ignore status, and data preservation.
-2. Resolve or formally risk-accept the 47 HIGH runtime Debian findings. The strict image scan is complete and fails; refresh it after base/package changes or vendor fixes. Review the narrow setuptools exception before `2026-12-13`.
+2. Review the temporary local/private acceptance of the 47 HIGH runtime findings by `2026-12-13`, or earlier on a Debian Trixie fix, applicable Trivy advisory change, or before public release. The strict image scan still fails. Review the narrow setuptools exception before its `2026-12-13` expiry.
 3. Choose a GitHub account, repository name, and visibility before any later publication. No remote, repository, push, tag, or image publication has been created.
 4. Run hosted CI and capture its URL and registry digest after publication is approved. The local image ID is not a registry digest.
 5. Capture the Swagger/deployment screenshot and complete the remaining assignment demo/submission artifacts. The earlier browser attempt was blocked for localhost access; no workaround was attempted.
 
-**Private staging status: repository content can proceed to private staging with `.env` kept excluded.** No repository or remote was created in this task. **Public publication status: not ready.** The previously exposed live credentials remain unrotated, and the rebuilt image's strict scan fails with 47 HIGH runtime findings lacking a fix version in the current Trivy database.
+**Private staging status: repository content can proceed to private staging with `.env` kept excluded.** The temporary risk acceptance covers only local/private assignment preparation. No repository or remote was created in this task. **Public publication status: not ready.** The previously exposed live credentials remain unrotated, and the strict scan still fails with 47 HIGH runtime findings lacking a fixed Trixie version in the scan database.

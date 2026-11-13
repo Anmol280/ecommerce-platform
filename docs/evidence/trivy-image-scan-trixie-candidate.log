@@ -1,0 +1,16 @@
+Official Python 3.12 Slim Trixie candidate comparison (redacted summary)
+Date: 2026-11-13
+Candidate build: ecommerce-product-order-api:trixie-candidate
+Candidate image ID/digest: sha256:a27ccd04076979aab1f98a59cb3e8c431c91f3ae401ca029134df1b2f6a65f6c
+Official base tag: python:3.12-slim-trixie
+Official base digest: sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b (identical to the existing Dockerfile base digest)
+Candidate OS: Debian GNU/Linux 13.7 (trixie); Python 3.12.16
+Current and candidate final images each contain 87 OS packages; package inventory comparison: identical.
+Fresh no-cache candidate test-target build: successful. The APT upgrade step updated zlib1g only; the final package inventory matched the current image.
+Candidate quality checks: Ruff passed; all 10 API tests passed; pip-audit reported no known vulnerabilities for indexed project dependencies and installed environment. The editable local project package is not published on PyPI and was skipped by the index audit.
+Candidate runtime smoke checks via disposable Compose one-off container, without migrations or data writes: UID 999; /health/live 200; /health/ready 200 (PostgreSQL readiness); /api/v1/products 200.
+Existing Compose API, database, and Nginx remained running and healthy; project worktree remained clean.
+Trivy 0.76.2 strict image scan: updated vulnerability DB freshly downloaded at 2026-11-13T10:04:46Z; no ignore-unfixed; all severities; exit code 1.
+Candidate findings: 208 total (HIGH:48, LOW:66, MEDIUM:90, UNKNOWN:4); HIGH 48 total, including 47 runtime findings and 1 setuptools layer-history finding.
+Baseline comparison: the 47 HIGH runtime finding tuples (advisory, package, installed version) match exactly; no HIGH runtime findings were removed or added.
+Complete candidate Trivy JSON is in trivy-image-scan-trixie-candidate.json. This is a failing strict scan, not a clean scan.
