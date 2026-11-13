@@ -1,0 +1,4 @@
+2026-11-13T08:36:12Z	INFO	[vulndb] Need to update DB
+2026-11-13T08:36:12Z	INFO	[vulndb] Downloading vulnerability DB...
+2026-11-13T08:36:12Z	INFO	[vulndb] Downloading artifact...	repo="mirror.gcr.io/aquasec/trivy-db:2"
+2026-11-13T08:41:12Z	FATAL	Fatal error	run error: init error: DB error: failed to download vulnerability DB: OCI artifact error: failed to download vulnerability DB: failed to download artifact from mirror.gcr.io/aquasec/trivy-db:2: oci download error: copy error: context deadline exceeded

@@ -1,73 +1,78 @@
 # Local verification report
 
-Updated 2026-11-13. This report continues the existing project at commit 61d20476f2b019b4d2934995d3d4968a946fe470. The supplied assignment source was 07_Cloud_Deployment_and_CI_CD_E_Commerce_Platform.docx; its full text and tables were reviewed.
+Updated 2026-11-13. This pass continues the existing project from commit `9705b7a03e3a6345915b5c09e02cd7d4020a5146`. The assignment source reviewed earlier is `07_Cloud_Deployment_and_CI_CD_E_Commerce_Platform.docx`.
 
-## Access and safety
+## Completed in this pass
 
-- The existing project folder was accessible. Docker Engine Server 28.5.2 and Compose 2.40.3 were reachable.
-- The project remains on local branch main. No Git remote is configured; no repository was created and no GitHub content was published.
-- The verification work is saved in a local commit on main; the final HEAD SHA is reported in the completion message.
-- The existing PostgreSQL volume, ecommerce-platform_postgres_data, was inspected before and after the API rebuild and kept unchanged. No database reset, volume removal, or restore was run against the assignment database. The API's normal startup migration check remained at head.
-- Order creation, replay and input-validation writes used a separate API container with a SQLite database in tmpfs. Backup/restore used a separate PostgreSQL container with its data directory verified as tmpfs. The outage drill stopped/restarted only the Nginx service.
-- Secret values were not read into evidence output, printed, or committed. .env remains ignored and untracked. Credentials exposed in earlier conversation should be rotated privately by the candidate before sharing or recording; no credential was changed here.
-
-## Changes in this verification pass
-
-- Fixed formatting in the API and test files and expanded the automated suite to 10 tests.
-- Updated pinned FastAPI, Starlette and development dependencies after dependency-audit findings. Pinned pip and build tooling for image construction, then removed setuptools from the final runtime filesystem.
-- Pinned the Python base image by digest and applied Debian security updates during image builds. The APT repository itself is not snapshot-pinned, so byte-for-byte reproducibility is not guaranteed.
-- Added isolated API smoke and PostgreSQL backup/restore rehearsal scripts. Made the PowerShell HTTP checks work with Windows PowerShell 5 and safely capture container logs.
-- Updated CI with actionlint-validated workflow checks, pip-audit and Trivy scan steps. Added a narrowly scoped, expiring Trivy exception for the stale setuptools 70.3.0 base-layer record, which is absent from the final runtime filesystem.
-- Updated the assignment checklist, README, architecture, runbook and evidence checklist.
+- Verified Docker Desktop Linux Engine 28.5.2, Compose 2.40.3, and only the `ecommerce-platform` Compose services. The API image was rebuilt with `--no-cache`; only the API container was recreated. PostgreSQL and Nginx stayed in place.
+- Confirmed the existing named volume `ecommerce-platform_postgres_data` before and after. Its creation time remained `2026-11-12T19:52:55Z`. The live table counts remained 3 products, 0 orders, 0 order items, and 0 audit events. No project data was reset or restored.
+- Confirmed `.env` remains ignored and untracked. No secret values were printed or added to evidence.
+- Ran the fresh no-cache Docker test target, live runtime verification, an isolated SQLite API/order test, an isolated PostgreSQL tmpfs backup/restore rehearsal, and the Nginx failure/recovery drill.
+- Ran Gitleaks v8.30.1 against Git history and the current project directory. The history scan covered four commits and reported 14 candidate findings; the latest project-directory scan reported 16. Findings are unresolved, and no clean-scan claim is made.
+- Refreshed the completed Trivy scan before rebuilding the production image. It reported 48 HIGH and 0 CRITICAL findings. A post-rebuild strict scan was attempted, but Trivy could not finish downloading its 133.47 MiB vulnerability database within the five-minute timeout. The rebuilt image's versions for all affected Debian packages matched the completed scan; setuptools remained absent from the final runtime. This comparison does not replace a completed post-rebuild Trivy scan.
 
 ## Passed verification
 
 | Check | Result |
 |---|---|
-| Compose configuration | docker compose config --quiet passed. |
-| Expanded Docker test target | No-cache build passed Ruff lint, Ruff format check, all 10 API tests, pip-audit of project dependencies, and pip-audit of the installed test environment. Both audits reported no known vulnerabilities. |
-| Production API image and Compose | No-cache API image rebuild succeeded. Compose started and reported API, PostgreSQL and Nginx healthy. The API image runs as app:app. Local tag: ecommerce-product-order-api:local. Local image ID: sha256:fd31b7e4e4f169d7497be960bec60cc4a1403791970336b759798d912abaed33. This is a local image ID, not a registry digest. |
-| Live runtime smoke | Liveness, PostgreSQL readiness, Swagger 200, product search/detail, admin 401/200, invalid-order 422, missing-order 404 and migration-at-head checks passed through the running Compose stack. |
-| Isolated order/API smoke | Liveness/readiness, Swagger, admin authentication, product create/search/detail, order create 201, stock decrement, exact idempotent replay with the same order ID and no second decrement, conflicting key reuse 409, invalid order 422 and order retrieval 200 passed. This data was isolated in SQLite tmpfs. |
-| Reverse-proxy failure/recovery | Stopping Nginx caused proxy health failure while API readiness remained healthy. Restarting Nginx restored liveness and readiness. |
-| Backup/restore rehearsal | The isolated PostgreSQL data directory was verified as tmpfs. A custom-format backup was created; after changing a synthetic marker, restore returned the marker to its backed-up value. The assignment database was not used. |
-| Dependency audit | pip-audit . and pip-audit --local --skip-editable both passed with no known vulnerabilities. |
-| CI workflow configuration | actionlint 1.7.12 passed on .github/workflows/ci.yml. It has PR/push quality and image checks and a version-tag-only publish job. Hosted GitHub Actions was not run. |
-| Trivy CI-policy scan | Passed with zero findings after applying the workflow's ignore-unfixed rule and the version-specific, expiring exception described below. See trivy-image-scan-ci-policy.json and trivy-image-scan-ci-policy.log. |
+| Compose configuration and full stack | `docker compose config --quiet` passed. API, PostgreSQL, and Nginx all reported healthy after the API rebuild and proxy recovery. |
+| No-cache Docker test target | Ruff lint and format checks passed; all 10 API tests passed. `pip-audit` reported no known vulnerabilities for the project dependencies and installed environment. The local project package is not published on PyPI, so that distribution itself is skipped by the index-based audit. |
+| Rebuilt production API | `docker compose build --no-cache api` passed. The API image runs as `app:app`; local tag is `ecommerce-product-order-api:local`, image ID `sha256:a5f8401104ed2268a10ba8e07e494e297627bd1b69c020955efb61a68c337081`. No image was published. |
+| Database authentication and data preservation | The rebuilt API made a read-only `SELECT 1` through its configured database connection. Readiness and migrations-at-head passed. The existing volume identity and table counts were unchanged. These checks used the current credentials; they were not rotated. |
+| Live API checks | Liveness, database readiness, Swagger 200, product search/detail, admin missing-token 401 and configured-token 200, invalid-order 422, missing-order 404, and migration-at-head all passed through the running Compose stack. |
+| Isolated API/order checks | In a separate SQLite tmpfs container: admin auth, product create/search/detail, order creation 201, stock decrement, same-key replay with the same order ID and no second decrement, changed-body key conflict 409, invalid order 422, and order retrieval 200 passed. The assignment database was not used for order writes. |
+| Proxy failure and recovery | Nginx was stopped for the drill; proxy failure was detected while the API remained ready. Nginx restarted and liveness/readiness recovered. |
+| Backup/restore rehearsal | A separate PostgreSQL test container used tmpfs for its data directory. A synthetic backup was restored successfully. The assignment database and volume were not used. |
+| `.env` handling | `.env` matched `.gitignore` and is not tracked by Git. |
+| CI configuration | The existing workflow had previously passed local `actionlint` validation. No workflow was run on GitHub; no remote is configured. |
 
-## Failed verification and security findings
+## Failed or incomplete security verification
 
-- The full Trivy high/critical gate failed. Its report contains 48 HIGH package entries and no CRITICAL entries: 47 Debian package entries have no fixed version in the current Trivy database, across 11 CVE IDs; one finding is a setuptools 70.3.0 record inherited from the pinned Python base layer. The final runtime image has no setuptools distribution metadata or importable setuptools package, but Trivy still reports that base-layer record.
-- The CI-policy scan ignores unfixed findings and uses a one-package, one-version exception for pkg:pypi/setuptools@70.3.0, expiring 2026-12-13. It does not suppress other setuptools versions or packages. This is a passing scan under the configured policy, not a claim that the full image has no vulnerabilities. The strict and policy reports are both retained in docs/evidence.
-- The Python image uses a pinned digest, but APT package versions come from live Debian repositories. Pin a Debian snapshot or document the intended update policy if reproducible package-level rebuilds are required.
-- The local API suite does not stress PostgreSQL row-lock behavior with concurrent orders. The endpoint checks that create/replay an order ran against an isolated SQLite database; the live PostgreSQL stack was checked for readiness and read-oriented API paths.
-- A Swagger screenshot was not captured. The browser tool reported that approval for the localhost origin had been declined. No alternate browser path or workaround was attempted.
+### Credential rotation
+
+The tool's automatic safety review rejected the local database-password/admin-token rotation command before execution. I did not try another route around that restriction. No database role password, admin token, `.env` value, database container, or PostgreSQL volume was changed for rotation. The currently configured credentials still work, but the previously exposed credentials therefore remain a publication blocker.
+
+### Secret scan
+
+Gitleaks v8.30.1 returned exit code 1 with 14 candidate findings in the Git-history scan (`--all`, four commits) and 16 in the latest project-directory scan. The directory scan included the ignored local `.env`, so its findings cannot be assumed to represent tracked files. The scanner's safely redacted summary did not include finding paths or rules, and a request to extract detailed metadata was rejected by the tool's safety policy. The findings remain untriaged; no credential values are included in the evidence logs.
+
+### Container vulnerabilities
+
+The last completed Trivy scan before the production-image rebuild found 48 HIGH and 0 CRITICAL entries across 12 CVE IDs. Trivy listed no fixed version for 47 Debian package entries across 11 CVE IDs. Each affected Debian package is present in the rebuilt runtime image, and the rebuilt image's package versions match the completed scan:
+
+| CVE group | Package entries |
+|---|---|
+| CVE-2026-76642, CVE-2026-78408, CVE-2026-78409, CVE-2026-78410 | `bsdutils`, `libblkid1`, `liblastlog2-2`, `libmount1`, `libsmartcols1`, `libuuid1`, `login`, `mount`, `util-linux` (9 entries for each CVE) |
+| CVE-2026-54369 | `libacl1` |
+| CVE-2025-69720 | `libncursesw6`, `libtinfo6`, `ncurses-base`, `ncurses-bin` |
+| CVE-2026-119373, CVE-2026-119374, CVE-2026-119379 | `libsqlite3-0` (one entry for each CVE) |
+| CVE-2026-16742 | `libsystemd0`, `libudev1` |
+| CVE-2026-9538 | `perl-base` |
+
+The remaining entry is `CVE-2025-47273` for `setuptools@70.3.0`, with a Trivy fixed version of `78.1.1`. Trivy reports the package in image-layer history, but the final runtime has neither an importable setuptools module nor distribution metadata after the Dockerfile's upgrade/uninstall step. The existing `.trivyignore.yaml` exception is limited to this exact PURL/version and expires `2026-12-13`; it does not broadly suppress the Debian findings. The prior CI-policy scan passed under its `ignore-unfixed` rule plus this exception, but that policy scan was not rerun on the rebuilt image.
+
+The post-rebuild strict Trivy run did not finish: its database download timed out after five minutes, before a report was created. Therefore a completed strict scan of the rebuilt image is still pending. The previous completed report is retained, and the package-version comparison is documented as supporting evidence only, not as a replacement scan.
 
 ## Evidence files
 
-- expanded-test-build.log - no-cache test image build, lint/format, test and dependency-audit output.
-- rebuild-and-compose.log - API image rebuild, Compose startup, service health and database-volume identity before/after.
-- runtime-smoke.log - checks against the running Compose deployment.
-- isolated-api-smoke.log - order creation/idempotency smoke using temporary SQLite storage, plus request logs without credentials.
-- recovery-drill.log - reverse-proxy outage and recovery output.
-- backup-restore-rehearsal.log - isolated PostgreSQL tmpfs backup/restore output.
-- ci-workflow-lint.log - actionlint version and successful workflow lint.
-- precommit-local-status.log - Docker/Compose state, ignored/untracked .env, and no-remote checks captured before the local commit.
-- trivy-image-scan-strict.json and .log - strict high/critical scan; the command returned 1 because findings remain.
-- trivy-image-scan-full.json and .log - complete high/critical finding set for the final image.
-- trivy-image-scan-ci-policy.json and .log - CI-policy scan result.
-- trivyignore-used.yaml - exact exception file used for the local policy scan.
+- `docs/evidence/docker-test-target-fresh.log` — no-cache test build, Ruff, 10 tests, and dependency-audit output.
+- `docs/evidence/docker-api-rebuild-current.log` — no-cache production API image rebuild and API-only Compose recreation.
+- `docs/evidence/runtime-check-after-api-rebuild.log` and `docs/evidence/runtime-check-final-stack.log` — runtime checks after image rebuild and after proxy recovery.
+- `docs/evidence/isolated-api-check-final.log` — isolated order/idempotency scenario and request logs without credential values.
+- `docs/evidence/proxy-failure-recovery-final.log` — proxy outage detection and recovery.
+- `docs/evidence/backup-restore-rehearsal-final.log` — isolated PostgreSQL tmpfs backup/restore.
+- `docs/evidence/gitleaks-history-redacted.log` and `docs/evidence/gitleaks-worktree-redacted.log` — redacted scanner summaries; they report 14 history findings and 16 project-directory findings.
+- `docs/evidence/trivy-image-scan-before-api-rebuild.json` and `.log` — completed 48-HIGH scan from immediately before the API image rebuild. This report command recorded findings but did not enable Trivy's non-zero exit-code gate.
+- `docs/evidence/trivy-image-scan-final-after-rebuild.log` — failed post-rebuild scan log showing the vulnerability-database download timeout; no post-rebuild JSON report was created.
+- Earlier CI-policy, strict-scan, and workflow-lint evidence remains in `docs/evidence/` and is identified by its original filenames.
 
-Earlier failed harness attempts and pre-fix scans are retained with filenames identifying them as attempts or superseded reports; the final successful logs above are the authoritative verification outputs. None contains secret values.
+## Remaining blockers
 
-## Still pending for submission
+1. Rotate the previously exposed database password and admin token through an approved local process, then recheck database authentication, admin authentication, `.env` ignore status, and data preservation.
+2. Triage the 14 Git-history findings. If any are real credentials, revoke/rotate them and obtain approval before any history rewrite; do not publish until this is resolved.
+3. Run a completed strict Trivy scan on the rebuilt image when the vulnerability database can be downloaded. Address or explicitly risk-accept the 47 runtime Debian findings; review the narrow setuptools exception before its expiry.
+4. Choose a GitHub account, repository name, and visibility. No remote, repository, push, tag, or image publication has been created.
+5. Run hosted CI and capture its URL and registry digest after publication is approved. The local image ID is not a registry digest.
+6. Capture the Swagger/deployment screenshot and complete the remaining assignment demo/submission artifacts. The earlier browser attempt was blocked for localhost access; no workaround was attempted.
 
-1. Rotate the previously exposed database password and admin token privately, then verify the new values work without sharing them.
-2. Choose the GitHub account, repository name and visibility. Add a remote and push only after reviewing the local changes. This task did not publish or create a repository.
-3. Run the workflow in GitHub and save its URL, version tag and registry digest. The local image ID above is not a registry digest.
-4. Resolve or reassess the Debian high-severity findings when vendor-fixed packages become available; rerun the strict Trivy gate. Review the temporary setuptools exception before its expiry.
-5. Capture a Swagger/deployment screenshot after allowing localhost browser access, or capture it on the laptop.
-6. Record the required 3-5 minute demo, fill candidate identity fields and form declarations, verify reviewer links, and prepare for the 15-minute walkthrough and 10-minute live task.
-7. For a live local-only review, keep Docker Desktop and the laptop awake while the services need to be available. For public HTTPS evidence, configure a controlled host/domain and certificate; that deployment has not been performed.
-
-See docs/assignment-compliance-checklist.md for status against every assignment requirement.
+**Publication status: not ready for public GitHub publication.** The previously exposed credentials are not rotated, Git history has 14 unresolved secret-scan findings, and the rebuilt image still needs a completed strict Trivy scan.
