@@ -8,7 +8,7 @@ Updated 2026-11-13. This pass continues the existing project from commit `9705b7
 - Confirmed the existing named volume `ecommerce-platform_postgres_data` before and after. Its creation time remained `2026-11-12T19:52:55Z`. The live table counts remained 3 products, 0 orders, 0 order items, and 0 audit events. No project data was reset or restored.
 - Confirmed `.env` remains ignored and untracked. No secret values were printed or added to evidence.
 - Ran the fresh no-cache Docker test target, live runtime verification, an isolated SQLite API/order test, an isolated PostgreSQL tmpfs backup/restore rehearsal, and the Nginx failure/recovery drill.
-- Ran Gitleaks v8.30.1 against Git history and the current project directory. The history scan covered four commits and reported 14 candidate findings; the latest project-directory scan reported 16. Findings are unresolved, and no clean-scan claim is made.
+- Reviewed all 16 Gitleaks candidates from the current project directory and all Git history through this commit. All 16 are false positives in generated Trivy JSON evidence; the current directory and history findings overlap exactly by path, line, and rule. No candidate is in application/configuration files or `.env`.
 - Refreshed the completed Trivy scan before rebuilding the production image. It reported 48 HIGH and 0 CRITICAL findings. A post-rebuild strict scan was attempted, but Trivy could not finish downloading its 133.47 MiB vulnerability database within the five-minute timeout. The rebuilt image's versions for all affected Debian packages matched the completed scan; setuptools remained absent from the final runtime. This comparison does not replace a completed post-rebuild Trivy scan.
 
 ## Passed verification
@@ -34,7 +34,9 @@ The tool's automatic safety review rejected the local database-password/admin-to
 
 ### Secret scan
 
-Gitleaks v8.30.1 returned exit code 1 with 14 candidate findings in the Git-history scan (`--all`, four commits) and 16 in the latest project-directory scan. The directory scan included the ignored local `.env`, so its findings cannot be assumed to represent tracked files. The scanner's safely redacted summary did not include finding paths or rules, and a request to extract detailed metadata was rejected by the tool's safety policy. The findings remain untriaged; no credential values are included in the evidence logs.
+Gitleaks v8.30.1 returned 16 candidates in Git history and 16 in the current project directory. The safe metadata reports show an exact overlap across the two scans. All findings use the `generic-api-key` rule and point into eight generated Trivy image scan JSON files. The matched spans are the `GPG_KEY` fingerprint in Python base-image build metadata: the same image history uses that identifier to receive the public signing key and verify the Python source archive. This is public verification metadata, not a credential. Classification: 16 false positives, 0 confirmed secrets, 0 historical/revoked secrets, 0 placeholders, and 0 uncertain findings. No confirmed secret was found in tracked files or Git history by this scan. The local `.env` remains ignored and untracked.
+
+This result concerns the 16 Gitleaks candidates only. The database password and admin token previously exposed in conversation remain unrotated and should still be rotated through an approved process; the Gitleaks candidates do not correspond to those credentials.
 
 ### Container vulnerabilities
 
@@ -61,7 +63,8 @@ The post-rebuild strict Trivy run did not finish: its database download timed ou
 - `docs/evidence/isolated-api-check-final.log` — isolated order/idempotency scenario and request logs without credential values.
 - `docs/evidence/proxy-failure-recovery-final.log` — proxy outage detection and recovery.
 - `docs/evidence/backup-restore-rehearsal-final.log` — isolated PostgreSQL tmpfs backup/restore.
-- `docs/evidence/gitleaks-history-redacted.log` and `docs/evidence/gitleaks-worktree-redacted.log` — redacted scanner summaries; they report 14 history findings and 16 project-directory findings.
+- `docs/security-findings-report.md` — per-finding redacted classifications and recommendations for all 16 candidates.
+- `docs/evidence/gitleaks-history-redacted.log` and `docs/evidence/gitleaks-worktree-redacted.log` — earlier redacted scanner summaries. The final safe metadata review is recorded in the security findings report.
 - `docs/evidence/trivy-image-scan-before-api-rebuild.json` and `.log` — completed 48-HIGH scan from immediately before the API image rebuild. This report command recorded findings but did not enable Trivy's non-zero exit-code gate.
 - `docs/evidence/trivy-image-scan-final-after-rebuild.log` — failed post-rebuild scan log showing the vulnerability-database download timeout; no post-rebuild JSON report was created.
 - Earlier CI-policy, strict-scan, and workflow-lint evidence remains in `docs/evidence/` and is identified by its original filenames.
@@ -69,10 +72,10 @@ The post-rebuild strict Trivy run did not finish: its database download timed ou
 ## Remaining blockers
 
 1. Rotate the previously exposed database password and admin token through an approved local process, then recheck database authentication, admin authentication, `.env` ignore status, and data preservation.
-2. Triage the 14 Git-history findings. If any are real credentials, revoke/rotate them and obtain approval before any history rewrite; do not publish until this is resolved.
+2. Rotate the previously exposed database password and admin token through an approved process. They were not found in tracked files or history by Gitleaks, but their prior exposure remains a security concern.
 3. Run a completed strict Trivy scan on the rebuilt image when the vulnerability database can be downloaded. Address or explicitly risk-accept the 47 runtime Debian findings; review the narrow setuptools exception before its expiry.
 4. Choose a GitHub account, repository name, and visibility. No remote, repository, push, tag, or image publication has been created.
 5. Run hosted CI and capture its URL and registry digest after publication is approved. The local image ID is not a registry digest.
 6. Capture the Swagger/deployment screenshot and complete the remaining assignment demo/submission artifacts. The earlier browser attempt was blocked for localhost access; no workaround was attempted.
 
-**Publication status: not ready for public GitHub publication.** The previously exposed credentials are not rotated, Git history has 14 unresolved secret-scan findings, and the rebuilt image still needs a completed strict Trivy scan.
+**Private staging status: repository content can proceed to private staging with `.env` kept excluded.** No repository or remote was created in this task. **Public publication status: not ready.** The previously exposed live credentials remain unrotated, and the rebuilt image still needs a completed strict Trivy scan with the 47 runtime Debian findings resolved or formally accepted.
