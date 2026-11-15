@@ -26,10 +26,9 @@ For order creation and retry checks without writing test orders to the assignmen
 .\scripts\verify-isolated-api.ps1
 ```
 
-Load sample products once:
+On startup, the API seeds the three demo products only if the product table is empty. Existing product data is left unchanged. Search the catalog with:
 
 ```powershell
-docker compose exec api python -m scripts.seed_demo_data
 Invoke-RestMethod 'http://localhost:8080/api/v1/products?q=wireless'
 ```
 

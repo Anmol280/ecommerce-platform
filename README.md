@@ -46,7 +46,7 @@ Invoke-RestMethod http://localhost:8080/health/live
 Invoke-RestMethod http://localhost:8080/health/ready
 ```
 
-The first startup applies the checked-in Alembic migration. The API and database are reachable only inside the Compose network; Nginx is bound to loopback at `http://localhost:8080`. Open [`http://localhost:8080/docs`](http://localhost:8080/docs) for Swagger UI.
+The first startup applies the checked-in Alembic migration and seeds the three demo products only when the product table is empty. Existing products are left unchanged. The API and database are reachable only inside the Compose network; Nginx is bound to loopback at `http://localhost:8080`. Open [`http://localhost:8080/docs`](http://localhost:8080/docs) for Swagger UI.
 
 ### Configuration and ports
 
@@ -67,10 +67,9 @@ The first startup applies the checked-in Alembic migration. The API and database
 | API `8000` | Compose network only | Nginx to FastAPI |
 | PostgreSQL `5432` | Compose network only | FastAPI to database |
 
-Load demo products once:
+Search the seeded demo catalog:
 
 ```powershell
-docker compose exec api python -m scripts.seed_demo_data
 Invoke-RestMethod 'http://localhost:8080/api/v1/products?q=wireless'
 ```
 
